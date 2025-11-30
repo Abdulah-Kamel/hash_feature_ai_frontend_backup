@@ -77,7 +77,7 @@ const RegisterForm = () => {
         duration: 3000,
         classNames: "toast-success mt-14",
       });
-      router.push("/dashboard");
+      router.push("/login");
     } else {
       setLoading(false);
       setError(result.error);
