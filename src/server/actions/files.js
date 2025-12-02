@@ -48,3 +48,25 @@ export async function fetchFolderFiles(folderId) {
   if (!res.ok) return { success: false, error: final?.message || res.statusText };
   return { success: true, data: final };
 }
+
+export async function deleteFile(folderId, fileId) {
+  const base = apiBase();
+  if (!base) return { success: false, error: "API base URL not configured" };
+  const c = await cookies();
+  const token = c.get("authToken")?.value;
+  if (!token) return { success: false, error: "No token provided" };
+  if (!folderId || !fileId) return { success: false, error: "Missing IDs" };
+
+  const res = await fetch(`${base}/api/v1/folders/${folderId}/files`, {
+    method: "DELETE",
+    headers: { 
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ fileIds: [fileId] }),
+  });
+  let final = null;
+  try { final = await res.json(); } catch {}
+  if (!res.ok) return { success: false, error: final?.message || res.statusText };
+  return { success: true, data: final };
+}

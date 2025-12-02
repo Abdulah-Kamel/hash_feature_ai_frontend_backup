@@ -2,19 +2,29 @@ import { useEffect, useState, useCallback } from "react";
 import StageDetail from "./StageDetail";
 import StageCard from "./StageCard";
 import StageLearn from "./StageLearn";
+import SkeletonCard from "./SkeletonCard";
 import { Spinner } from "@/components/ui/spinner";
 import { useFileStore } from "@/store/fileStore";
+import { useAiContentStore } from "@/store/aiContentStore";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import TestView from "@/components/chat/TestView";
 
-export default function StageSwitcher() {
+export default function StageSwitcher({ shouldLoad = false }) {
   const router = useRouter();
   const [mode, setMode] = useState("list");
-  const [loading, setLoading] = useState(false);
-  const [items, setItems] = useState([]);
   const [selected, setSelected] = useState(null);
   const [selectedStage, setSelectedStage] = useState(null);
+  const [mcqData, setMcqData] = useState([]);
+  const [hasLoaded, setHasLoaded] = useState(false);
   const folderId = useFileStore((s) => s.folderId);
+  
+  // Use store for stages data and loading states
+  const stages = useAiContentStore((s) => s.stages);
+  const loading = useAiContentStore((s) => s.stagesLoading);
+  const isGenerating = useAiContentStore((s) => s.stagesGenerating);
+  const setStages = useAiContentStore((s) => s.setStages);
+  const setLoading = useAiContentStore((s) => s.setStagesLoading);
   const load = useCallback(async () => {
     if (!folderId) return;
     setLoading(true);
@@ -51,23 +61,34 @@ export default function StageSwitcher() {
           progress: s.averageScore ?? 0,
           data: s,
         }));
-        setItems(normalized);
+        setStages(normalized);
       }
     } catch {
-      setItems([]);
+      setStages([]);
     }
     setLoading(false);
-  }, [folderId]);
+    setHasLoaded(true);
+  }, [folderId, router]);
 
   useEffect(() => {
-    const t = setTimeout(() => load(), 0);
     const fn = () => load();
     window.addEventListener("stages:refresh", fn);
     return () => {
-      clearTimeout(t);
       window.removeEventListener("stages:refresh", fn);
     };
   }, [load]);
+
+  // Load when tab becomes active
+  useEffect(() => {
+    if (shouldLoad && !hasLoaded && folderId) {
+      load();
+    }
+  }, [shouldLoad, hasLoaded, folderId, load]);
+
+  // Reset loaded state when folder changes
+  useEffect(() => {
+    setHasLoaded(false);
+  }, [folderId]);
 
   if (mode === "detail") {
     return (
@@ -94,22 +115,79 @@ export default function StageSwitcher() {
           selectedStage?.stageNumber || 1
         }`}
         content={selectedStage?.stageContent || ""}
+        mcqs={
+          Array.isArray(selectedStage?.stageMcq) ? selectedStage.stageMcq : []
+        }
+        onOpenMcq={() => {
+          const arr = Array.isArray(selectedStage?.stageMcq)
+            ? selectedStage.stageMcq
+            : [];
+          const mapped = arr.map((m) => {
+            const opts = Array.isArray(m.options) ? m.options : [];
+            const correctIdx = Math.max(
+              0,
+              opts.findIndex((o) => o === m.answer)
+            );
+            return {
+              q: m.question,
+              options: opts,
+              correct: correctIdx < 0 ? 0 : correctIdx,
+            };
+          });
+          setMcqData(mapped);
+          setMode("mcq");
+        }}
+      />
+    );
+  }
+  if (mode === "mcq") {
+    return (
+      <TestView
+        onBack={() => setMode("learn")}
+        title={`${selected?.title || "القسم"} - اختبار المرحلة ${
+          selectedStage?.stageNumber || 1
+        }`}
+        total={Array.isArray(mcqData) ? mcqData.length : 0}
+        index={1}
+        data={mcqData}
+        onFinish={async ({ score }) => {
+          const id = selected?.data?._id || selected?.data?.id || selected?.id;
+          if (!id) return;
+          try {
+            const res = await fetch(
+              `/api/ai/stages?id=${encodeURIComponent(id)}`,
+              {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  stageNumber: selectedStage?.stageNumber || 1,
+                  score: score ?? 0,
+                }),
+              }
+            );
+            if (res && res.ok) {
+              window.dispatchEvent(new Event("stages:refresh"));
+              // Navigate back to stage detail view after finishing
+              setMode("detail");
+            }
+          } catch {}
+        }}
       />
     );
   }
   return (
     <div className="space-y-4">
-      {loading && (
-        <div className="flex items-center gap-2 text-sm">
-          <Spinner className="size-5" />
-          <span>جارٍ تحميل المراحل...</span>
-        </div>
+      {(loading || isGenerating) && (
+        <>
+          <SkeletonCard className="bg-gradient-to-b from-primary/80 to-primary" />
+          <SkeletonCard className="bg-gradient-to-b from-primary/80 to-primary" />
+        </>
       )}
-      {!loading && items.length === 0 && (
+      {!loading && !isGenerating && stages.length === 0 && (
         <div className="text-sm text-muted-foreground">لا توجد مراحل</div>
       )}
-      {!loading &&
-        items.map((it) => (
+      {!loading && !isGenerating &&
+        stages.map((it) => (
           <StageCard
             key={it.id}
             title={it.title}

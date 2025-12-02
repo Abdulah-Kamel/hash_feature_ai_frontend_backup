@@ -8,7 +8,9 @@ import FlashcardsSwitcher from "./FlashcardsSwitcher";
 import StageSwitcher from "./ٍStageSwitvher";
 import TestView from "./TestView";
 import StageCard from "./StageCard";
+import SkeletonCard from "./SkeletonCard";
 import { useFileStore } from "@/store/fileStore";
+import { useAiContentStore } from "@/store/aiContentStore";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
 import {
@@ -30,11 +32,20 @@ export default function LeftPanel() {
   const [stageTitle, setStageTitle] = React.useState("");
   const [flashTitle, setFlashTitle] = React.useState("");
   const [mcqTitle, setMcqTitle] = React.useState("");
-  const [mcqLoading, setMcqLoading] = React.useState(false);
-  const [mcqItems, setMcqItems] = React.useState([]);
   const [mcqView, setMcqView] = React.useState(null);
+  const [activeTab, setActiveTab] = React.useState("stages");
+  const [mcqLoaded, setMcqLoaded] = React.useState(false);
   const folderId = useFileStore((s) => s.folderId);
   const getSelectedIds = useFileStore((s) => s.getSelectedIds);
+  
+  // Use store for AI content state
+  const mcqs = useAiContentStore((s) => s.mcqs);
+  const mcqsLoading = useAiContentStore((s) => s.mcqsLoading);
+  const setMcqs = useAiContentStore((s) => s.setMcqs);
+  const setMcqsLoading = useAiContentStore((s) => s.setMcqsLoading);
+  const setMcqsGenerating = useAiContentStore((s) => s.setMcqsGenerating);
+  const setStagesGenerating = useAiContentStore((s) => s.setStagesGenerating);
+  const setFlashcardsGenerating = useAiContentStore((s) => s.setFlashcardsGenerating);
   const tabs = [
     { label: "الاختبارات", value: "tests" },
     { label: "كروت الفلاش", value: "flashcards" },
@@ -51,9 +62,17 @@ export default function LeftPanel() {
       });
       return;
     }
-    setGenBusy(true);
+    
+    // Close dialog and clear title immediately
     const title = stageTitle?.trim() || "مرحلة جديدة";
+    setStageOpen(false);
+    setStageTitle("");
+    
+    // Start loading state
+    setGenBusy(true);
+    setStagesGenerating(true);
     const payload = { title, folderId, fileIds: ids };
+    
     try {
       const res = await fetch(`/api/ai/stages`, {
         method: "POST",
@@ -74,8 +93,6 @@ export default function LeftPanel() {
         try {
           window.dispatchEvent(new Event("stages:refresh"));
         } catch {}
-        setStageOpen(false);
-        setStageTitle("");
       }
     } catch {
       toast.error("حدث خطأ غير متوقع", {
@@ -84,6 +101,7 @@ export default function LeftPanel() {
       });
     }
     setGenBusy(false);
+    setStagesGenerating(false);
   };
 
   const handleGenerateFlashcards = async () => {
@@ -96,9 +114,17 @@ export default function LeftPanel() {
       });
       return;
     }
-    setFlashBusy(true);
+    
+    // Close dialog and clear title immediately
     const title = flashTitle?.trim() || "كروت جديدة";
+    setFlashOpen(false);
+    setFlashTitle("");
+    
+    // Start loading state
+    setFlashBusy(true);
+    setFlashcardsGenerating(true);
     const payload = { title, folderId, fileIds: ids };
+    
     try {
       const res = await fetch(`/api/ai/flashcards`, {
         method: "POST",
@@ -119,8 +145,6 @@ export default function LeftPanel() {
         try {
           window.dispatchEvent(new Event("flashcards:refresh"));
         } catch {}
-        setFlashOpen(false);
-        setFlashTitle("");
       }
     } catch {
       toast.error("حدث خطأ غير متوقع", {
@@ -129,6 +153,7 @@ export default function LeftPanel() {
       });
     }
     setFlashBusy(false);
+    setFlashcardsGenerating(false);
   };
 
   const handleGenerateMcq = async () => {
@@ -141,9 +166,17 @@ export default function LeftPanel() {
       });
       return;
     }
-    setGenBusy(true);
+    
+    // Close dialog and clear title immediately
     const title = mcqTitle?.trim() || "اختبار جديد";
+    setMcqOpen(false);
+    setMcqTitle("");
+    
+    // Start loading state
+    setGenBusy(true);
+    setMcqsGenerating(true);
     const payload = { title, folderId, fileIds: ids };
+    
     try {
       const res = await fetch(`/api/ai/mcq`, {
         method: "POST",
@@ -164,8 +197,6 @@ export default function LeftPanel() {
         try {
           window.dispatchEvent(new Event("mcq:refresh"));
         } catch {}
-        setMcqOpen(false);
-        setMcqTitle("");
       }
     } catch {
       toast.error("حدث خطأ غير متوقع", {
@@ -174,11 +205,12 @@ export default function LeftPanel() {
       });
     }
     setGenBusy(false);
+    setMcqsGenerating(false);
   };
 
   const loadMcq = React.useCallback(async () => {
     if (!folderId) return;
-    setMcqLoading(true);
+    setMcqsLoading(true);
     try {
       const res = await fetch(
         `/api/ai/mcq?folderId=${encodeURIComponent(folderId)}`
@@ -189,34 +221,45 @@ export default function LeftPanel() {
           position: "top-right",
           duration: 3000,
         });
-        setMcqItems([]);
+        setMcqs([]);
       } else {
         const arr = Array.isArray(json?.data)
           ? json.data
           : Array.isArray(json)
           ? json
           : [];
-        setMcqItems(arr);
+        setMcqs(arr);
       }
     } catch {
-      setMcqItems([]);
+      setMcqs([]);
     }
-    setMcqLoading(false);
-  }, [folderId]);
+    setMcqsLoading(false);
+  }, [folderId, setMcqs, setMcqsLoading]);
 
   React.useEffect(() => {
-    const t = setTimeout(() => loadMcq(), 0);
     const fn = () => loadMcq();
     window.addEventListener("mcq:refresh", fn);
     return () => {
-      clearTimeout(t);
       window.removeEventListener("mcq:refresh", fn);
     };
   }, [loadMcq]);
 
+  // Load MCQ when tests tab is activated
+  React.useEffect(() => {
+    if (activeTab === "tests" && !mcqLoaded && folderId) {
+      loadMcq();
+      setMcqLoaded(true);
+    }
+  }, [activeTab, mcqLoaded, folderId, loadMcq]);
+
+  // Reset loaded state when folder changes
+  React.useEffect(() => {
+    setMcqLoaded(false);
+  }, [folderId]);
+
   return (
     <Card className="bg-background rounded-lg p-4 h-full border-none">
-      <Tabs defaultValue="stages" className="h-full">
+      <Tabs defaultValue="stages" className="flex flex-col h-[calc(100vh-100px)]" onValueChange={setActiveTab}>
         <TabsList className="bg-card p-2 rounded-lg w-full grid grid-cols-3 gap-2">
           {tabs.map((t) => (
             <TabsTrigger
@@ -229,7 +272,7 @@ export default function LeftPanel() {
           ))}
         </TabsList>
 
-        <TabsContent value="stages" className="mt-4 space-y-4">
+        <TabsContent value="stages" className="mt-4 space-y-4 flex-1 overflow-y-auto pr-2">
           <Button
             onClick={() => setStageOpen(true)}
             disabled={genBusy}
@@ -242,9 +285,9 @@ export default function LeftPanel() {
             )}
             إنشاء مراحل
           </Button>
-          <StageSwitcher />
+          <StageSwitcher shouldLoad={activeTab === "stages"} />
         </TabsContent>
-        <TabsContent value="flashcards" className="mt-4">
+        <TabsContent value="flashcards" className="mt-4 flex-1 overflow-y-auto pr-2">
           <Button
             onClick={() => setFlashOpen(true)}
             disabled={flashBusy}
@@ -257,9 +300,9 @@ export default function LeftPanel() {
             )}
             إنشاء كروت الفلاش
           </Button>
-          <FlashcardsSwitcher />
+          <FlashcardsSwitcher shouldLoad={activeTab === "flashcards"} />
         </TabsContent>
-        <TabsContent value="tests" className="mt-4">
+        <TabsContent value="tests" className="mt-4 flex-1 overflow-y-auto pr-2">
           {testsMode === "view" && mcqView ? (
             <TestView
               onBack={() => setTestsMode("list")}
@@ -267,6 +310,23 @@ export default function LeftPanel() {
               total={mcqView.data.length}
               index={1}
               data={mcqView.data}
+              onFinish={async ({ score }) => {
+                const id = mcqView.id;
+                if (!id) return;
+                try {
+                  const res = await fetch(
+                    `/api/ai/mcq?id=${encodeURIComponent(id)}`,
+                    {
+                      method: "PATCH",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ score: score ?? 0 }),
+                    }
+                  );
+                  if (res && res.ok) {
+                    window.dispatchEvent(new Event("mcq:refresh"));
+                  }
+                } catch {}
+              }}
             />
           ) : (
             <>
@@ -278,19 +338,19 @@ export default function LeftPanel() {
                 إنشاء اختبارات
               </Button>
               <div className="mt-4 space-y-4">
-                {mcqLoading && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <Spinner className="size-5" />
-                    <span>جارٍ تحميل الاختبارات...</span>
-                  </div>
+                {mcqsLoading && (
+                  <>
+                    <SkeletonCard className="bg-gradient-to-b from-secondary/80 to-secondary" />
+                    <SkeletonCard className="bg-gradient-to-b from-secondary/80 to-secondary" />
+                  </>
                 )}
-                {!mcqLoading && mcqItems.length === 0 && (
+                {!mcqsLoading && mcqs.length === 0 && (
                   <div className="text-sm text-muted-foreground">
                     لا توجد اختبارات
                   </div>
                 )}
-                {!mcqLoading &&
-                  mcqItems.map((it) => {
+                {!mcqsLoading &&
+                  mcqs.map((it) => {
                     const title = it?.title || "اختبار";
                     const total = Array.isArray(it?.mcq)
                       ? it.mcq.length
@@ -304,6 +364,7 @@ export default function LeftPanel() {
                             0,
                             (q.options || []).findIndex((o) => o === q.answer)
                           ),
+                          score: typeof q.score === "number" ? q.score : 10,
                         }))
                       : [];
                     return (
@@ -314,7 +375,11 @@ export default function LeftPanel() {
                         progress={progress}
                         className="bg-secondary"
                         onOpen={() => {
-                          setMcqView({ title, data: mapped });
+                          setMcqView({
+                            id: it.id || it._id,
+                            title,
+                            data: mapped,
+                          });
                           setTestsMode("view");
                         }}
                       />

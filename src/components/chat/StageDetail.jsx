@@ -55,8 +55,9 @@ export default function StageDetail({
         {Array.isArray(stages) &&
           stages.map((st, i) => {
             const n = i + 1;
+            const isDone = st?.status === "completed";
             const isOpened = st?.status === "opened";
-            const state = isOpened ? "current" : "locked";
+            const state = isDone ? "done" : isOpened ? "current" : "locked";
             const total = Array.isArray(st.stageMcq) ? st.stageMcq.length : 0;
             return (
               <div
@@ -66,7 +67,11 @@ export default function StageDetail({
                 {n % 2 !== 0 && (
                   <div
                     className={`h-[2px] w-24 bg-border ${
-                      state === "current" ? "bg-primary" : "bg-card"
+                      state === "done"
+                        ? "bg-emerald-600/50"
+                        : state === "current"
+                        ? "bg-primary"
+                        : "bg-card"
                     }`}
                   />
                 )}
@@ -77,13 +82,17 @@ export default function StageDetail({
                   aria-disabled={!isOpened}
                   className={
                     "rounded-full px-4 py-3 flex flex-row items-center justify-between overflow-hidden flex-1 " +
-                    (isOpened
+                    (isDone
+                      ? "bg-emerald-600/10 text-white border border-emerald-600/50"
+                      : isOpened
                       ? "cursor-pointer bg-primary/20 text-primary-foreground"
                       : "opacity-70 bg-card text-foreground")
                   }
                 >
                   <div className="flex items-center gap-2 bg-foreground/10 px-2 py-2 rounded-full">
-                    {isOpened ? (
+                    {isDone ? (
+                      <CheckCircle2 className="size-5 text-emerald-500" />
+                    ) : isOpened ? (
                       <ArrowLeft className="size-5" />
                     ) : (
                       <Lock className="size-5" />
@@ -100,7 +109,11 @@ export default function StageDetail({
                 {n % 2 === 0 && (
                   <div
                     className={`h-[2px] w-24 bg-border ${
-                      state === "current" ? "bg-primary" : "bg-card"
+                      state === "done"
+                        ? "bg-emerald-600/50"
+                        : state === "current"
+                        ? "bg-primary"
+                        : "bg-card"
                     }`}
                   />
                 )}

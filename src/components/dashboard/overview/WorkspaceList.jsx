@@ -1,11 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
-import { MoreHorizontal, X } from "lucide-react";
+import { MoreHorizontal, X, Trash2 } from "lucide-react";
 import {
   getFolders,
   updateFolder,
   deleteFolder,
 } from "@/server/actions/folders";
+import { fetchFolderFiles, deleteFile } from "@/server/actions/files";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   DropdownMenu,
@@ -33,6 +34,9 @@ export default function WorkspaceList() {
   const [selected, setSelected] = useState(null);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [folderFiles, setFolderFiles] = useState([]);
+  const [filesLoading, setFilesLoading] = useState(false);
   const [editName, setEditName] = useState("");
   const [busy, setBusy] = useState(false);
   const { isAuthenticated, loading: authLoading } = useAuth();
@@ -54,6 +58,44 @@ export default function WorkspaceList() {
       setFolders(list);
     }
     setLoading(false);
+  };
+
+  const handleShowDetails = async (folder) => {
+    setSelected(folder);
+    setDetailsOpen(true);
+    setFilesLoading(true);
+    const id = folder._id || folder.id;
+    const res = await fetchFolderFiles(id);
+    if (res?.success) {
+      const list = Array.isArray(res.data?.data)
+        ? res.data.data
+        : Array.isArray(res.data)
+        ? res.data
+        : [];
+      setFolderFiles(list);
+    } else {
+      setFolderFiles([]);
+      toast.error("تعذر جلب ملفات المجلد");
+    }
+    setFilesLoading(false);
+  };
+
+  const handleDeleteFile = async (fileId) => {
+    if (!selected || !fileId) return;
+    const folderId = selected._id || selected.id;
+    
+    const toastId = toast.loading("جارٍ حذف الملف...");
+    try {
+      const res = await deleteFile(folderId, fileId);
+      if (res?.success) {
+        toast.success("تم حذف الملف بنجاح", { id: toastId });
+        setFolderFiles((prev) => prev.filter((f) => (f._id || f.id) !== fileId));
+      } else {
+        toast.error(res?.error || "فشل حذف الملف", { id: toastId });
+      }
+    } catch {
+      toast.error("حدث خطأ أثناء الحذف", { id: toastId });
+    }
   };
 
   useEffect(() => {
@@ -164,6 +206,12 @@ export default function WorkspaceList() {
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-40">
+                    <DropdownMenuItem
+                      className="cursor-pointer"
+                      onClick={() => handleShowDetails(f)}
+                    >
+                      تفاصيل
+                    </DropdownMenuItem>
                     <DropdownMenuItem
                       className="cursor-pointer"
                       onClick={() => {
@@ -304,6 +352,84 @@ export default function WorkspaceList() {
               >
                 إلغاء
               </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
+        <DialogContent className="border-[#515355] bg-background rounded-2xl p-6 max-w-2xl w-[92vw]">
+          <DialogHeader className="flex flex-row items-center justify-between py-2">
+            <DialogClose className="cursor-pointer mb-0">
+              <X />
+            </DialogClose>
+            <DialogTitle className="text-xl font-semibold">
+              تفاصيل المجلد
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">اسم المجلد</p>
+                <p className="font-medium">{selected?.name}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">تاريخ الإنشاء</p>
+                <p className="font-medium">
+                  {selected?.createdAt
+                    ? new Date(selected.createdAt).toLocaleDateString("ar-EG")
+                    : "—"}
+                </p>
+              </div>
+            </div>
+            
+            <div>
+              <h4 className="font-medium mb-3">الملفات ({folderFiles.length})</h4>
+              <div className="bg-card rounded-xl border border-[#515355] overflow-hidden">
+                {filesLoading ? (
+                  <div className="p-4 space-y-3">
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-4 w-1/2" />
+                    <Skeleton className="h-4 w-2/3" />
+                  </div>
+                ) : folderFiles.length > 0 ? (
+                  <div className="max-h-[300px] overflow-y-auto">
+                    {folderFiles.map((file, i) => (
+                      <div
+                        key={file._id || i}
+                        className="p-3 border-b border-[#515355] last:border-0 flex items-center justify-between hover:bg-accent/50"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="size-8 rounded bg-primary/10 grid place-items-center text-primary text-xs font-bold">
+                            {file.fileName?.split(".").pop()?.toUpperCase() || "FILE"}
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium truncate max-w-[200px]">
+                              {file.fileName}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {file.size
+                                ? `${(file.size / 1024 / 1024).toFixed(2)} MB`
+                                : "—"}
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => handleDeleteFile(file._id || file.id)}
+                          className="text-muted-foreground hover:text-destructive transition-colors p-2 cursor-pointer"
+                          title="حذف الملف"
+                        >
+                          <Trash2 className="size-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-8 text-center text-muted-foreground text-sm">
+                    لا توجد ملفات في هذا المجلد
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </DialogContent>

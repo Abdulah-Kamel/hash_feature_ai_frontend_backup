@@ -10,7 +10,7 @@ function ChatThread({ messages }) {
   }, [messages]);
 
   return (
-    <div className="flex-1 max-h-[calc(100vh-250px)] overflow-y-auto">
+    <div className="flex-1 overflow-y-auto">
       <Card className="bg-background rounded-none h-full border-none py-2">
         <div ref={listRef} className="h-full overflow-auto px-4 py-4 space-y-4">
           {messages.map((m) => (

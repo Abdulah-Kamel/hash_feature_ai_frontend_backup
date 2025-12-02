@@ -13,6 +13,7 @@ export default function StageFlashcards({
   index = 1,
   onBack,
   items,
+  setId,
 }) {
   const cards = useMemo(() => {
     const base = Array.isArray(items) && items.length ? items : null;
@@ -59,10 +60,28 @@ export default function StageFlashcards({
   };
   const markCorrect = () => {
     setCorrectCount((v) => v + 1);
+    try {
+      if (setId && cards[current - 1]?.q) {
+        fetch(`/api/ai/flashcards?id=${encodeURIComponent(setId)}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ question: cards[current - 1].q }),
+        });
+      }
+    } catch {}
     goNext();
   };
   const markWrong = () => {
     setWrongCount((v) => v + 1);
+    try {
+      if (setId && cards[current - 1]?.q) {
+        fetch(`/api/ai/flashcards?id=${encodeURIComponent(setId)}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ question: cards[current - 1].q }),
+        });
+      }
+    } catch {}
     goNext();
   };
 

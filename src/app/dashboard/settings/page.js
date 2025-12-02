@@ -26,10 +26,55 @@ export default function SettingsPage() {
     country: "مصر",
     specialization: "إدارة أعمال",
     university: "جامعة الملك فهد",
+    email: "",
+    phone: "",
+    plan: "free",
+    uploadsToday: 0,
+    aiTokensToday: 0,
+    weeklyTriesUsed: 0,
+    totalTries: 0,
     oldPassword: "",
     newPassword: "",
     newPassword2: "",
   });
+  React.useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const res = await fetch("/api/profiles", { credentials: "include" });
+        const json = await res.json();
+        if (!active) return;
+        const d = json?.data || {};
+        setProfile((p) => ({
+          ...p,
+          name: d.name || p.name,
+          email: d.email || p.email,
+          phone: d.phone || p.phone,
+          plan: d.plan || p.plan,
+          uploadsToday:
+            typeof d.uploadsToday === "number"
+              ? d.uploadsToday
+              : p.uploadsToday,
+          aiTokensToday:
+            typeof d.aiTokensToday === "number"
+              ? d.aiTokensToday
+              : p.aiTokensToday,
+          weeklyTriesUsed:
+            typeof d.weeklyTriesUsed === "number"
+              ? d.weeklyTriesUsed
+              : p.weeklyTriesUsed,
+          totalTries:
+            typeof d.totalTries === "number" ? d.totalTries : p.totalTries,
+          country: p.country,
+          specialization: p.specialization,
+          university: p.university,
+        }));
+      } catch {}
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
   const [privacy, setPrivacy] = React.useState("public");
   const languages = [
     { value: "ar", label: "العربية" },
@@ -118,7 +163,7 @@ export default function SettingsPage() {
           <FaqAccordion />
         </TabsContent>
         <TabsContent value="usage" dir="rtl" className="space-y-6">
-          <UsageCard />
+          <UsageCard profile={profile} />
         </TabsContent>
       </Tabs>
     </SidebarInset>

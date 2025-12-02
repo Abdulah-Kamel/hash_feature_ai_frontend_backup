@@ -13,11 +13,20 @@ export default function TestResult({ title, total, correct, wrong, durationMs, o
   const cardGradient = isSecondary ? "from-secondary/80 to-secondary" : "from-primary/80 to-primary";
   const ringBg = isSecondary ? "bg-secondary" : "bg-primary";
   const restartBtnBg = isSecondary ? "bg-secondary hover:bg-secondary/80 text-secondary-foreground" : "bg-primary hover:bg-primary/80 text-primary-foreground";
+  
+  const handleBack = () => {
+    // Trigger stages refresh when going back
+    try {
+      window.dispatchEvent(new Event("stages:refresh"));
+    } catch {}
+    onBack?.();
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <p className="text-xl font-semibold text-white">{title}</p>
-        <Button onClick={onBack} variant="outline" className="rounded-full py-5 px-4 bg-card cursor-pointer">
+        <Button onClick={handleBack} variant="outline" className="rounded-full py-5 px-4 bg-card cursor-pointer">
           العودة
           <ArrowRight className="size-5 ml-1" />
         </Button>
@@ -64,7 +73,7 @@ export default function TestResult({ title, total, correct, wrong, durationMs, o
 
       <div className="space-y-3">
         <Button onClick={onRestart} className={`w-full h-14 rounded-full ${restartBtnBg} hover:${restartBtnBg} cursor-pointer`}>إعادة الأختبار</Button>
-        <Button onClick={onBack} variant="outline" className="w-full h-14 rounded-full cursor-pointer">العودة</Button>
+        <Button onClick={handleBack} variant="outline" className="w-full h-14 rounded-full cursor-pointer">العودة</Button>
       </div>
     </div>
   );

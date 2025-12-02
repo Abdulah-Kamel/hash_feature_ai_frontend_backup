@@ -5,8 +5,10 @@ export const useFileStore = create((set, get) => ({
   folderId: null,
   files: [],
   selectedIds: new Set(),
+  isUploading: false,
   setFolderId: (id) => set({ folderId: id }),
   setFiles: (files) => set({ files }),
+  setIsUploading: (v) => set({ isUploading: v }),
   toggleSelect: (id) =>
     set((state) => {
       const next = new Set(state.selectedIds);

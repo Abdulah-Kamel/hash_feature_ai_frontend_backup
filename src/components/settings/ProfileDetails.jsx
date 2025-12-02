@@ -25,6 +25,17 @@ export default function ProfileDetails({ profile, setProfile }) {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
+              <Label className="text-white">البريد الإلكتروني</Label>
+              <Input value={profile.email || ""} onChange={(e)=>setProfile(p=>({...p,email:e.target.value}))} type="email" className="bg-card rounded-xl text-white" />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-white">رقم الهاتف</Label>
+              <Input value={profile.phone || ""} onChange={(e)=>setProfile(p=>({...p,phone:e.target.value}))} className="bg-card rounded-xl text-white" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
               <Label className="text-white">المنصب</Label>
               <Select value={profile.position} onValueChange={(v)=>setProfile(p=>({...p,position:v}))}>
                 <SelectTrigger className="bg-card rounded-xl w-full cursor-pointer">

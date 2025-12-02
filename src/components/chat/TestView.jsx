@@ -29,12 +29,20 @@ function OptionItem({ label, variant = "idle", onSelect, disabled = false }) {
   );
 }
 
-export default function TestView({ title = "الدرس الأول", total = 10, index = 1, data, onBack }) {
+export default function TestView({
+  title = "الدرس الأول",
+  total = 10,
+  index = 1,
+  data,
+  onBack,
+  onFinish,
+}) {
   const [current, setCurrent] = React.useState(index);
   const [selected, setSelected] = React.useState(null);
   const [status, setStatus] = React.useState("idle"); // idle | selected | correct | wrong
   const [correctCount, setCorrectCount] = React.useState(0);
   const [wrongCount, setWrongCount] = React.useState(0);
+  const [totalScore, setTotalScore] = React.useState(0);
   const startAtRef = React.useRef(0);
   const [finishedAt, setFinishedAt] = React.useState(null);
   const [durationMs, setDurationMs] = React.useState(0);
@@ -67,6 +75,12 @@ export default function TestView({ title = "الدرس الأول", total = 10, 
     if (Array.isArray(data) && data.length) return data;
     return Array.from({ length: total }, (_, i) => sample[i % sample.length]);
   }, [data, total]);
+  const maxScore = React.useMemo(() => {
+    return items.reduce(
+      (sum, it) => sum + (typeof it.score === "number" ? it.score : 10),
+      0
+    );
+  }, [items]);
   const question = items[current - 1]?.q ?? "";
   const options = items[current - 1]?.options ?? [];
   const correctIndex = items[current - 1]?.correct ?? 0;
@@ -91,6 +105,11 @@ export default function TestView({ title = "الدرس الأول", total = 10, 
     if (selected === correctIndex) {
       setStatus("correct");
       setCorrectCount((v) => v + 1);
+      const val =
+        typeof items[current - 1]?.score === "number"
+          ? items[current - 1].score
+          : 10;
+      setTotalScore((v) => v + val);
     } else {
       setStatus("wrong");
       setWrongCount((v) => v + 1);
@@ -105,6 +124,17 @@ export default function TestView({ title = "الدرس الأول", total = 10, 
         const now = Date.now();
         setFinishedAt(now);
         setDurationMs(Math.max(0, now - (startAtRef.current || 0)));
+        if (onFinish) {
+          try {
+            onFinish({
+              total,
+              correct: correctCount,
+              wrong: wrongCount,
+              score: totalScore,
+              maxScore,
+            });
+          } catch {}
+        }
       }
       return next;
     });
@@ -140,6 +170,7 @@ export default function TestView({ title = "الدرس الأول", total = 10, 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
+        <p className="text-xl font-semibold text-white">{title}</p>
         <button
           onClick={onBack}
           className="inline-flex items-center gap-2 rounded-xl bg-card px-4 py-3 cursor-pointer"
@@ -147,7 +178,6 @@ export default function TestView({ title = "الدرس الأول", total = 10, 
           <span className="text-sm text-muted-foreground">العودة</span>
           <ArrowRight className="size-5" />
         </button>
-        <p className="text-xl font-semibold text-white">{title}</p>
       </div>
 
       <div className="space-y-2">

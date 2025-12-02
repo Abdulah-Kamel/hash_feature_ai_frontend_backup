@@ -118,32 +118,39 @@ export default function ChatPage() {
     setInput("");
   };
 
-  React.useEffect(() => {
+  const loadFiles = React.useCallback(async () => {
     if (!id) return;
     setFolderId(id);
-    (async () => {
-      const res = await fetchFolderFiles(id);
-      if (res?.success) {
-        const items = Array.isArray(res.data?.data)
-          ? res.data.data
-          : Array.isArray(res.data)
-          ? res.data
-          : [];
-        const normalized = items.map((it) => ({
-          id: it._id,
-          name: it.fileName,
-        }));
-        setFiles(normalized);
+    const res = await fetchFolderFiles(id);
+    if (res?.success) {
+      const items = Array.isArray(res.data?.data)
+        ? res.data.data
+        : Array.isArray(res.data)
+        ? res.data
+        : [];
+      const normalized = items.map((it) => ({
+        id: it._id,
+        name: it.fileName,
+      }));
+      setFiles(normalized);
+    }
+    if (res?.status) {
+      if (res.status === 401) {
+        router.push("/login");
+        return;
       }
-      if (res?.status) {
-        if (res.status === 401) {
-          router.push("/login");
-          return;
-        }
-        console.error(res.status);
-      }
-    })();
+      console.error(res.status);
+    }
   }, [id, setFolderId, setFiles, router]);
+
+  React.useEffect(() => {
+    loadFiles();
+    const fn = () => loadFiles();
+    window.addEventListener("files:refresh", fn);
+    return () => {
+      window.removeEventListener("files:refresh", fn);
+    };
+  }, [loadFiles]);
 
   return (
     <SidebarInset className="min-h-screen">

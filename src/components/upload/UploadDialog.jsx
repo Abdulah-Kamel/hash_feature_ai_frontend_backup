@@ -17,8 +17,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { uploadFiles } from "@/server/actions/files";
 import { useDropzone } from "react-dropzone";
 import { toast } from "sonner";
+import { useFileStore } from "@/store/fileStore";
 
-function UploadDialogTrigger({ children }) {
+function UploadDialogTrigger({ children, onUploaded }) {
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [workspace, setWorkspace] = React.useState("");
   const [folders, setFolders] = React.useState([]);
@@ -27,6 +28,7 @@ function UploadDialogTrigger({ children }) {
   const [selectedFolderId, setSelectedFolderId] = React.useState("");
   const [selectedFiles, setSelectedFiles] = React.useState([]);
   const [uploadBusy, setUploadBusy] = React.useState(false);
+  const setIsUploading = useFileStore((s) => s.setIsUploading);
 
   const loadFolders = React.useCallback(async () => {
     if (authLoading || !isAuthenticated) return;
@@ -34,12 +36,11 @@ function UploadDialogTrigger({ children }) {
     const res = await getFolders();
     if (res?.success && Array.isArray(res.data)) {
       setFolders(res.data);
-      if (!workspace && res.data.length) setWorkspace(res.data[0]?.name || "");
     } else {
       setFolders([]);
     }
     setFoldersLoading(false);
-  }, [authLoading, isAuthenticated, workspace]);
+  }, [authLoading, isAuthenticated]);
 
   React.useEffect(() => {
     if (dialogOpen) loadFolders();
@@ -127,27 +128,50 @@ function UploadDialogTrigger({ children }) {
             onSubmit={async (e) => {
               e.preventDefault();
               if (!canSubmit) return;
+              
+              // Close dialog immediately
+              setDialogOpen(false);
+              
+              // Start loading state
               setUploadBusy(true);
+              setIsUploading(true);
+              
               const fd = new FormData();
               fd.append("folderId", selectedFolderId);
               for (const f of selectedFiles) fd.append("files", f);
-              const res = await uploadFiles(fd);
-              setUploadBusy(false);
-              if (!res?.success) {
-                toast.error(res?.error || "فشل رفع الملفات", {
+              
+              try {
+                const res = await uploadFiles(fd);
+                if (!res?.success) {
+                  toast.error(res?.error || "فشل رفع الملفات", {
+                    position: "top-right",
+                    duration: 3000,
+                    classNames: "toast-error mt-14",
+                  });
+                } else {
+                  toast.success("تم رفع الملفات بنجاح", {
+                    position: "top-right",
+                    duration: 3000,
+                    classNames: "toast-success mt-14",
+                  });
+                  try {
+                    window.dispatchEvent(new Event("files:refresh"));
+                  } catch {}
+                  try {
+                    if (typeof onUploaded === "function") onUploaded(selectedFolderId);
+                  } catch {}
+                }
+              } catch {
+                toast.error("حدث خطأ غير متوقع", {
                   position: "top-right",
                   duration: 3000,
                   classNames: "toast-error mt-14",
                 });
-                return;
               }
-              toast.success("تم رفع الملفات بنجاح", {
-                position: "top-right",
-                duration: 3000,
-                classNames: "toast-success mt-14",
-              });
+              
+              setUploadBusy(false);
+              setIsUploading(false);
               setSelectedFiles([]);
-              setDialogOpen(false);
             }}
           >
             <input type="hidden" name="folderId" value={selectedFolderId} />

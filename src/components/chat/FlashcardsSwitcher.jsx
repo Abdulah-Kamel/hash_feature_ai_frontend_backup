@@ -3,18 +3,26 @@ import { Spinner } from "@/components/ui/spinner";
 import { useFileStore } from "@/store/fileStore";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import SkeletonCard from "./SkeletonCard";
+import { useAiContentStore } from "@/store/aiContentStore";
 
 const { default: StageCard } = require("./StageCard");
 const { default: StageFlashcards } = require("./StageFlashcards");
 
-export default function FlashcardsSwitcher() {
+export default function FlashcardsSwitcher({ shouldLoad = false }) {
     const router = useRouter();
 
   const [mode, setMode] = useState("list");
-  const [loading, setLoading] = useState(false);
-  const [items, setItems] = useState([]);
   const [view, setView] = useState(null);
+  const [hasLoaded, setHasLoaded] = useState(false);
   const folderId = useFileStore((s) => s.folderId);
+  
+  // Use store for flashcards data and loading states
+  const flashcards = useAiContentStore((s) => s.flashcards);
+  const loading = useAiContentStore((s) => s.flashcardsLoading);
+  const isGenerating = useAiContentStore((s) => s.flashcardsGenerating);
+  const setFlashcards = useAiContentStore((s) => s.setFlashcards);
+  const setLoading = useAiContentStore((s) => s.setFlashcardsLoading);
 
   const load = useCallback(async () => {
     if (!folderId) return;
@@ -29,7 +37,7 @@ export default function FlashcardsSwitcher() {
           position: "top-right",
           duration: 3000,
         });
-         if (res?.status) {
+        if (res?.status) {
           if (res.status === 401) {
             router.push("/login");
             return;
@@ -53,7 +61,7 @@ export default function FlashcardsSwitcher() {
             ? f.flashcards.map((c) => ({
                 q: c.question,
                 a: c.answer,
-                hint: c.hint, 
+                hint: c.hint,
               }))
             : [];
           return {
@@ -64,23 +72,34 @@ export default function FlashcardsSwitcher() {
             cards,
           };
         });
-        setItems(normalized);
+        setFlashcards(normalized);
       }
     } catch {
-      setItems([]);
+      setFlashcards([]);
     }
     setLoading(false);
-  }, [folderId]);
+    setHasLoaded(true);
+  }, [folderId, router]);
 
   useEffect(() => {
-    const t = setTimeout(() => load(), 0);
     const fn = () => load();
     window.addEventListener("flashcards:refresh", fn);
     return () => {
-      clearTimeout(t);
       window.removeEventListener("flashcards:refresh", fn);
     };
   }, [load]);
+
+  // Load when tab becomes active
+  useEffect(() => {
+    if (shouldLoad && !hasLoaded && folderId) {
+      load();
+    }
+  }, [shouldLoad, hasLoaded, folderId, load]);
+
+  // Reset loaded state when folder changes
+  useEffect(() => {
+    setHasLoaded(false);
+  }, [folderId]);
 
   if (mode === "view" && view) {
     return (
@@ -90,29 +109,30 @@ export default function FlashcardsSwitcher() {
         total={view.items.length}
         index={1}
         items={view.items}
+        setId={view.id}
       />
     );
   }
   return (
     <div className="mt-4 space-y-4">
-      {loading && (
-        <div className="flex items-center gap-2 text-sm">
-          <Spinner className="size-5" />
-          <span>جارٍ تحميل الكروت...</span>
-        </div>
+      {(loading || isGenerating) && (
+        <>
+          <SkeletonCard className="bg-gradient-to-b from-primary/80 to-primary" />
+          <SkeletonCard className="bg-gradient-to-b from-primary/80 to-primary" />
+        </>
       )}
-      {!loading && items.length === 0 && (
+      {!loading && !isGenerating && flashcards.length === 0 && (
         <div className="text-sm text-muted-foreground">لا توجد كروت</div>
       )}
-      {!loading &&
-        items.map((it) => (
+      {!loading && !isGenerating &&
+        flashcards.map((it) => (
           <StageCard
             key={it.id}
             title={it.title}
             stagesCount={it.stagesCount}
             progress={it.progress}
             onOpen={() => {
-              setView({ title: it.title, items: it.cards || [] });
+              setView({ id: it.id, title: it.title, items: it.cards || [] });
               setMode("view");
             }}
           />
