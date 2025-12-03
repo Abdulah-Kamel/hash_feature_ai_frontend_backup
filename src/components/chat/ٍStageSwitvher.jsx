@@ -25,6 +25,7 @@ export default function StageSwitcher({ shouldLoad = false }) {
   const isGenerating = useAiContentStore((s) => s.stagesGenerating);
   const setStages = useAiContentStore((s) => s.setStages);
   const setLoading = useAiContentStore((s) => s.setStagesLoading);
+  
   const load = useCallback(async () => {
     if (!folderId) return;
     setLoading(true);
@@ -38,7 +39,7 @@ export default function StageSwitcher({ shouldLoad = false }) {
           position: "top-right",
           duration: 3000,
         });
-        setItems([]);
+        setStages([]);
         if (res?.status) {
           if (res.status === 401) {
             router.push("/login");
@@ -68,7 +69,7 @@ export default function StageSwitcher({ shouldLoad = false }) {
     }
     setLoading(false);
     setHasLoaded(true);
-  }, [folderId, router]);
+  }, [folderId, router, setStages, setLoading]);
 
   useEffect(() => {
     const fn = () => load();
@@ -107,6 +108,7 @@ export default function StageSwitcher({ shouldLoad = false }) {
       />
     );
   }
+  
   if (mode === "learn") {
     return (
       <StageLearn
@@ -140,7 +142,32 @@ export default function StageSwitcher({ shouldLoad = false }) {
       />
     );
   }
+  
   if (mode === "mcq") {
+    const handleNextStage = () => {
+      // Get all stages from the selected item
+      const allStages = selected?.data?.stages || [];
+      const currentStageNumber = selectedStage?.stageNumber || 1;
+      
+      // Find the next stage
+      const nextStage = allStages.find(st => st.stageNumber === currentStageNumber + 1);
+      
+      if (nextStage) {
+        // Move to the next stage
+        setSelectedStage(nextStage);
+        setMode("learn");
+        setMcqData([]);
+      } else {
+        // No more stages, go back to detail view
+        toast.info("لقد أكملت جميع المراحل!", {
+          position: "top-right",
+          duration: 3000,
+        });
+        setMode("detail");
+        setMcqData([]);
+      }
+    };
+
     return (
       <TestView
         onBack={() => setMode("learn")}
@@ -150,6 +177,7 @@ export default function StageSwitcher({ shouldLoad = false }) {
         total={Array.isArray(mcqData) ? mcqData.length : 0}
         index={1}
         data={mcqData}
+        onNextStage={handleNextStage}
         onFinish={async ({ score }) => {
           const id = selected?.data?._id || selected?.data?.id || selected?.id;
           if (!id) return;
@@ -167,20 +195,20 @@ export default function StageSwitcher({ shouldLoad = false }) {
             );
             if (res && res.ok) {
               window.dispatchEvent(new Event("stages:refresh"));
-              // Navigate back to stage detail view after finishing
-              setMode("detail");
             }
           } catch {}
         }}
       />
     );
   }
+  
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 grid grid-cols-1 md:grid-cols-2 gap-4">
       {(loading || isGenerating) && (
         <>
-          <SkeletonCard className="bg-gradient-to-b from-primary/80 to-primary" />
-          <SkeletonCard className="bg-gradient-to-b from-primary/80 to-primary" />
+          <SkeletonCard className="bg-linear-to-b from-primary/80 to-primary" />
+          <SkeletonCard className="bg-linear-to-b from-primary/80 to-primary" />
+          <SkeletonCard className="bg-linear-to-b from-primary/80 to-primary" />
         </>
       )}
       {!loading && !isGenerating && stages.length === 0 && (

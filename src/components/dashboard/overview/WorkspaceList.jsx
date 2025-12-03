@@ -26,6 +26,7 @@ import { toast } from "sonner";
 import useAuth from "@/hooks/use-auth";
 import { DialogClose } from "@radix-ui/react-dialog";
 import Link from "next/link";
+import { fixArabicFilename } from "@/lib/utils";
 
 export default function WorkspaceList() {
   const [folders, setFolders] = useState([]);
@@ -166,18 +167,12 @@ export default function WorkspaceList() {
               : "—";
             return (
               <div
-                className="bg-card flex rounded-xl p-4 xl:p-5"
+                className="bg-card rounded-xl p-4 xl:p-5"
                 key={f._id || f.id || f.name}
               >
-                <Link
-                  href={`/dashboard/folders/${encodeURIComponent(
-                    f._id || f.id
-                  )}`}
-                  prefetch={false}
-                  className="flex-1"
-                >
-                  <div className="flex flex-1 items-center gap-3">
-                    <div className="grid grid-cols-3 gap-4 w-full">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex-1">
+                    <div className="grid grid-cols-3 gap-4">
                       <div className="flex flex-col items-start">
                         <span className="text-sm text-foreground/70">
                           اسم المجلد
@@ -198,41 +193,104 @@ export default function WorkspaceList() {
                       </div>
                     </div>
                   </div>
-                </Link>
-                <DropdownMenu dir="rtl">
-                  <DropdownMenuTrigger asChild>
-                    <button className="rounded-xl p-2 text-foreground/80 cursor-pointer hover:bg-foreground/10">
-                      <MoreHorizontal className="size-4" />
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-40">
-                    <DropdownMenuItem
-                      className="cursor-pointer"
-                      onClick={() => handleShowDetails(f)}
-                    >
-                      تفاصيل
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="cursor-pointer"
-                      onClick={() => {
-                        setSelected(f);
-                        setEditName(f.name || "");
-                        setEditOpen(true);
-                      }}
-                    >
-                      تعديل
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => {
-                        setSelected(f);
-                        setDeleteOpen(true);
-                      }}
-                      className="text-destructive cursor-pointer"
-                    >
-                      حذف
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                  <DropdownMenu dir="rtl">
+                    <DropdownMenuTrigger asChild>
+                      <button className="rounded-xl p-2 text-foreground/80 cursor-pointer hover:bg-foreground/10">
+                        <MoreHorizontal className="size-4" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-40">
+                      <DropdownMenuItem
+                        className="cursor-pointer"
+                        onClick={() => handleShowDetails(f)}
+                      >
+                        تفاصيل
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="cursor-pointer"
+                        onClick={() => {
+                          setSelected(f);
+                          setEditName(f.name || "");
+                          setEditOpen(true);
+                        }}
+                      >
+                        تعديل
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setSelected(f);
+                          setDeleteOpen(true);
+                        }}
+                        className="text-destructive cursor-pointer"
+                      >
+                        حذف
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+                
+                {/* Feature Cards Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
+                  <Link
+                    href={`/dashboard/folders/${encodeURIComponent(
+                      f._id || f.id
+                    )}/stages`}
+                    prefetch={false}
+                    className="group"
+                  >
+                    <div className="bg-primary/10 hover:bg-primary/20 transition-colors rounded-lg p-4 border border-primary/20 hover:border-primary/40">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="size-8 rounded-full bg-primary/20 flex items-center justify-center">
+                          <span className="text-primary text-sm font-bold">M</span>
+                        </div>
+                        <h3 className="font-medium text-sm">المراحل</h3>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        إنشاء وإدارة المراحل التعليمية
+                      </p>
+                    </div>
+                  </Link>
+
+                  <Link
+                    href={`/dashboard/folders/${encodeURIComponent(
+                      f._id || f.id
+                    )}/flashcards`}
+                    prefetch={false}
+                    className="group"
+                  >
+                    <div className="bg-secondary/10 hover:bg-secondary/20 transition-colors rounded-lg p-4 border border-secondary/20 hover:border-secondary/40">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="size-8 rounded-full bg-secondary/20 flex items-center justify-center">
+                          <span className="text-secondary text-sm font-bold">F</span>
+                        </div>
+                        <h3 className="font-medium text-sm">كروت الفلاش</h3>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        إنشاء بطاقات تعليمية تفاعلية
+                      </p>
+                    </div>
+                  </Link>
+
+                  <Link
+                    href={`/dashboard/folders/${encodeURIComponent(
+                      f._id || f.id
+                    )}/tests`}
+                    prefetch={false}
+                    className="group"
+                  >
+                    <div className="bg-[#278F5C]/10 hover:bg-[#278F5C]/20 transition-colors rounded-lg p-4 border border-[#278F5C]/20 hover:border-[#278F5C]/40">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="size-8 rounded-full bg-[#278F5C]/20 flex items-center justify-center">
+                          <span className="text-[#278F5C] text-sm font-bold">T</span>
+                        </div>
+                        <h3 className="font-medium text-sm">الاختبارات</h3>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        إنشاء اختبارات تفاعلية
+                      </p>
+                    </div>
+                  </Link>
+                </div>
               </div>
             );
           })}
@@ -405,7 +463,7 @@ export default function WorkspaceList() {
                           </div>
                           <div>
                             <p className="text-sm font-medium truncate max-w-[200px]">
-                              {file.fileName}
+                              {fixArabicFilename(file.fileName)}
                             </p>
                             <p className="text-xs text-muted-foreground">
                               {file.size

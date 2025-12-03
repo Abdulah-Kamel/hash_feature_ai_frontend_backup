@@ -13,6 +13,7 @@ import {
   LogOut,
   ChevronUp,
   FileText,
+  Trash2,
 } from "lucide-react";
 import {
   Sidebar,
@@ -29,9 +30,12 @@ import {
 } from "../ui/sidebar";
 import { Button } from "../ui/button";
 import { Avatar, AvatarFallback } from "../ui/avatar";
+import { Skeleton } from "../ui/skeleton";
 import logo from "@/assets/logo.svg";
 import ChatSidebar from "@/components/chat/ChatSidebar";
 import useAuth from "@/hooks/use-auth";
+import { logout, fetchUserFiles, deleteFile } from "@/server/actions/files";
+import { toast } from "sonner";
 import UploadDialogTrigger from "@/components/upload/UploadDialog";
 import { useFileStore } from "@/store/fileStore";
 import { useRouter } from "next/navigation";
@@ -42,17 +46,72 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "../ui/dropdown-menu";
+import { fixArabicFilename } from "@/lib/utils";
 
 const Index = ({ variant = "global" }) => {
   const { user } = useAuth();
+  const [userFiles, setUserFiles] = React.useState([]);
+  const [filesLoading, setFilesLoading] = React.useState(false);
+  const [filesExpanded, setFilesExpanded] = React.useState(true);
   const files = useFileStore((s) => s.files);
   const router = useRouter();
-  const onLogout = async () => {
+  
+  // Fetch user files on mount
+  React.useEffect(() => {
+    const loadUserFiles = async () => {
+      setFilesLoading(true);
+      try {
+        const res = await fetchUserFiles();
+        if (res?.success) {
+          const filesList = Array.isArray(res.data?.data) 
+            ? res.data.data 
+            : Array.isArray(res.data) 
+            ? res.data 
+            : [];
+          setUserFiles(filesList);
+        } else {
+          setUserFiles([]);
+        }
+      } catch (error) {
+        console.error('Error loading files:', error);
+        setUserFiles([]);
+      }
+      setFilesLoading(false);
+    };
+    
+    loadUserFiles();
+  }, []);
+  
+  const handleDeleteFile = async (file) => {
+    const folderId = file.folderId || file.folder?._id || file.folder;
+    if (!folderId) {
+      toast.error("لا يمكن حذف الملف: معرف المجلد مفقود");
+      return;
+    }
+    
+    const toastId = toast.loading("جارٍ حذف الملف...");
     try {
-      await fetch("/api/auth/logout", { method: "POST" });
-    } catch {}
-    router.push("/login");
+      const res = await deleteFile(folderId, file._id || file.id);
+      if (res?.success) {
+        toast.success("تم حذف الملف بنجاح", { id: toastId });
+        // Remove file from local state
+        setUserFiles(prev => prev.filter(f => (f._id || f.id) !== (file._id || file.id)));
+      } else {
+        toast.error(res?.error || "فشل حذف الملف", { id: toastId });
+      }
+    } catch (error) {
+      toast.error("حدث خطأ أثناء الحذف", { id: toastId });
+    }
   };
+  
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      toast.error("حدث خطأ أثناء تسجيل الخروج");
+    }
+  };
+  
   if (variant === "chat") {
     return <ChatSidebar />;
   }
@@ -77,7 +136,7 @@ const Index = ({ variant = "global" }) => {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild className="py-5">
-                  <Link href="/subscribe">
+                  <Link href="/dashboard/settings/billing">
                     <Zap className="size-4" />
                     <span>اشترك الآن</span>
                   </Link>
@@ -108,14 +167,14 @@ const Index = ({ variant = "global" }) => {
                   </SidebarMenuButton>
                 </UploadDialogTrigger>
               </SidebarMenuItem>
-              <SidebarMenuItem>
+              {/* <SidebarMenuItem>
                 <SidebarMenuButton asChild className="py-5">
                   <Link href="/marketplace">
                     <ShoppingBag className="size-4" />
                     <span>السوق</span>
                   </Link>
                 </SidebarMenuButton>
-              </SidebarMenuItem>
+              </SidebarMenuItem> */}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -128,23 +187,55 @@ const Index = ({ variant = "global" }) => {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive className="py-5">
-                  <Link href="/files" className="justify-between">
+                <SidebarMenuButton 
+                  asChild={false}
+                  isActive 
+                  className="py-5 cursor-pointer"
+                  onClick={() => setFilesExpanded(!filesExpanded)}
+                >
+                  <div className="flex items-center justify-between w-full">
                     <div className="flex items-center gap-2">
                       <Folder className="size-4" />
                       <span>كل الملفات</span>
                     </div>
-                    <ChevronDown className="size-4" />
-                  </Link>
+                    <ChevronDown 
+                      className={`size-4 transition-transform duration-200 ${
+                        filesExpanded ? 'rotate-180' : ''
+                      }`} 
+                    />
+                  </div>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              {Array.isArray(files) && files.length > 0 ? (
-                files.map((f) => (
-                  <SidebarMenuItem key={f.id || f._id || f.name}>
-                    <SidebarMenuButton className="py-4 justify-start">
-                      <div className="flex items-center gap-2">
-                        <FileText className="size-4" />
-                        <span className="truncate max-w-[160px]">{f.name}</span>
+              {filesExpanded && (filesLoading ? (
+                <>
+                  {[1, 2, 3].map((i) => (
+                    <SidebarMenuItem key={i}>
+                      <SidebarMenuButton className="py-4 justify-start">
+                        <div className="flex items-center gap-2 w-full">
+                          <Skeleton className="size-4 rounded" />
+                          <Skeleton className="h-4 flex-1" />
+                        </div>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </>
+              ) : Array.isArray(userFiles) && userFiles.length > 0 ? (
+                userFiles.map((f) => (
+                  <SidebarMenuItem key={f._id || f.id || f.fileName}>
+                    <SidebarMenuButton className="py-4 justify-between group">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <FileText className="size-4 shrink-0" />
+                        <span className="truncate max-w-[140px]">{fixArabicFilename(f.fileName || f.name)}</span>
+                      </div>
+                      <div 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleDeleteFile(f);
+                        }}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:text-destructive cursor-pointer"
+                      >
+                        <Trash2 className="size-4" />
                       </div>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -157,7 +248,7 @@ const Index = ({ variant = "global" }) => {
                     </span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-              )}
+              ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -207,7 +298,7 @@ const Index = ({ variant = "global" }) => {
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              onClick={onLogout}
+              onClick={handleLogout}
               className="cursor-pointer text-destructive focus:text-destructive"
             >
               <LogOut className="size-4 ml-2" />

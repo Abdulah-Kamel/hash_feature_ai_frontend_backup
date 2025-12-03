@@ -18,10 +18,10 @@ export default function StageDetail({
           <Button
             onClick={onBack}
             variant="outline"
-            className="rounded-full h-10 px-4 bg-card"
+            className="rounded-full h-10 px-4 bg-card cursor-pointer"
           >
+            <ArrowRight className="size-5 mr-2" />
             العودة
-            <ArrowRight className="size-5 ml-2" />
           </Button>
         </div>
         <p className="text-lg font-semibold text-foreground">{title}</p>
@@ -29,16 +29,6 @@ export default function StageDetail({
 
       <Card className="rounded-2xl p-5 bg-gradient-to-b from-[#262626] to-[#262626cc] text-white">
         <div className="flex items-center gap-3">
-          <Button
-            onClick={() => {
-              const first = stages[0];
-              if (first && first.status === "opened") onLearn?.(first);
-            }}
-            disabled={!stages[0] || stages[0]?.status !== "opened"}
-            className="rounded-lg h-10 px-4"
-          >
-            أكمل التعلم
-          </Button>
           <div className="ml-auto text-right">
             <p className="text-base font-medium">المرحلة الأولى</p>
             <p className="text-sm font-light">
@@ -48,6 +38,17 @@ export default function StageDetail({
                 : 0}
             </p>
           </div>
+          <Button
+            onClick={() => {
+              // Find the first opened stage (not completed)
+              const openedStage = stages.find(st => st.status === "opened");
+              if (openedStage) onLearn?.(openedStage);
+            }}
+            disabled={!stages.some(st => st.status === "opened")}
+            className="rounded-lg h-10 px-4 cursor-pointer"
+          >
+            أكمل التعلم
+          </Button>
         </div>
       </Card>
 
@@ -89,6 +90,13 @@ export default function StageDetail({
                       : "opacity-70 bg-card text-foreground")
                   }
                 >
+                  <div className="size-8 grid place-items-center rounded-full bg-white/10">
+                    <span className="text-sm">{n}</span>
+                  </div>
+                  <div className="flex-1 text-right">
+                    <p className="text-sm">المرحلة {st.stageNumber}</p>
+                    <p className="text-xs opacity-80">عدد الأسئلة: {total}</p>
+                  </div>
                   <div className="flex items-center gap-2 bg-foreground/10 px-2 py-2 rounded-full">
                     {isDone ? (
                       <CheckCircle2 className="size-5 text-emerald-500" />
@@ -97,13 +105,6 @@ export default function StageDetail({
                     ) : (
                       <Lock className="size-5" />
                     )}
-                  </div>
-                  <div className="flex-1 text-right">
-                    <p className="text-sm">المرحلة {st.stageNumber}</p>
-                    <p className="text-xs opacity-80">عدد الأسئلة: {total}</p>
-                  </div>
-                  <div className="size-8 grid place-items-center rounded-full bg-white/10">
-                    <span className="text-sm">{n}</span>
                   </div>
                 </Card>
                 {n % 2 === 0 && (

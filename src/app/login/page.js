@@ -33,7 +33,14 @@ export const metadata = {
 };
 
 import LoginCard from "@/components/login/loginCard";
-export default function loginPage() {
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+
+export default async function loginPage() {
+  const c = await cookies();
+  const token = c.get("authToken")?.value;
+  if (token) redirect("/dashboard/overview");
+
   return (
     <>
       <NavBar />

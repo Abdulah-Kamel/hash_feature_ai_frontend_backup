@@ -16,7 +16,7 @@ import {
 import UploadDialogTrigger from "@/components/upload/UploadDialog";
 import { useFileStore } from "@/store/fileStore";
 import { Skeleton } from "@/components/ui/skeleton";
-import { deleteFile } from "@/server/actions/files";
+import { deleteFile, logout } from "@/server/actions/files";
 import { toast } from "sonner";
 import {
   Sidebar,
@@ -43,6 +43,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { fixArabicFilename } from "@/lib/utils";
 
 function SidebarSection({ title, children }) {
   return (
@@ -90,7 +91,7 @@ export default function ChatSidebar() {
   const sources = React.useMemo(() => {
     return files.map((f) => ({
       id: f.id,
-      label: f.name,
+      label: fixArabicFilename(f.name),
       checked: selectedIds.has ? selectedIds.has(f.id) : false,
     }));
   }, [files, selectedIds]);
@@ -121,12 +122,12 @@ export default function ChatSidebar() {
   };
 
   const { user } = useAuth();
-  const router = useRouter();
-  const onLogout = async () => {
+  const handleLogout = async () => {
     try {
-      await fetch("/api/auth/logout", { method: "POST" });
-    } catch {}
-    router.push("/login");
+      await logout();
+    } catch (error) {
+      toast.error("حدث خطأ أثناء تسجيل الخروج");
+    }
   };
   const userName = user?.name || "";
   const userEmail = user?.email || "";
@@ -236,7 +237,7 @@ export default function ChatSidebar() {
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              onClick={onLogout}
+              onClick={handleLogout}
               className="cursor-pointer text-destructive focus:text-destructive"
             >
               <LogOut className="size-4 ml-2" />

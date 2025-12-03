@@ -44,6 +44,16 @@ function UploadDialogTrigger({ children, onUploaded }) {
 
   React.useEffect(() => {
     if (dialogOpen) loadFolders();
+    else {
+      // Reset state when dialog closes (after animation)
+      const timer = setTimeout(() => {
+        setWorkspace("");
+        setSelectedFolderId("");
+        setSelectedFiles([]);
+        setUploadBusy(false);
+      }, 300);
+      return () => clearTimeout(timer);
+    }
   }, [dialogOpen, loadFolders]);
 
   const onSelectFolder = (f) => {
@@ -56,15 +66,15 @@ function UploadDialogTrigger({ children, onUploaded }) {
     getInputProps,
     isDragActive,
     open: openFileDialog,
-    acceptedFiles,
   } = useDropzone({
     noClick: true,
     multiple: true,
-    onDropAccepted: (files) => setSelectedFiles(files),
+    onDropAccepted: (files) => setSelectedFiles((prev) => [...prev, ...files]),
   });
-  React.useEffect(() => {
-    setSelectedFiles(acceptedFiles);
-  }, [acceptedFiles]);
+
+  const removeFile = (index) => {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const canSubmit = selectedFolderId && selectedFiles.length > 0 && !uploadBusy;
   return (
@@ -175,49 +185,78 @@ function UploadDialogTrigger({ children, onUploaded }) {
             }}
           >
             <input type="hidden" name="folderId" value={selectedFolderId} />
-            <div
-              {...getRootProps({
-                className:
-                  "rounded-2xl border border-dashed border-[#515355] bg-card p-8 grid place-items-center text-center gap-4",
-              })}
-            >
-              <input {...getInputProps({ name: "files" })} />
-              <Upload className="size-8 text-muted-foreground" />
-              <p className="text-sm">
-                {isDragActive
-                  ? "أسقط الملفات هنا"
-                  : "اسحب وأفلت الملفات هنا أو اخترها"}
-              </p>
-              <div className="flex items-center gap-3">
-                <Button
-                  type="button"
-                  onClick={() => openFileDialog()}
-                  className="bg-primary text-primary-foreground px-10 py-5 cursor-pointer"
-                >
-                  اختر الملفات
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={!canSubmit || uploadBusy}
-                  className="bg-secondary text-white px-10 py-5 cursor-pointer disabled:opacity-60"
-                >
-                  ارفع الملف
-                </Button>
-              </div>
-              {selectedFiles.length > 0 && (
-                <div className="mt-4 text-left w-full">
-                  <p className="text-sm mb-2">الملفات المختارة:</p>
-                  <ul className="text-xs space-y-1">
-                    {selectedFiles.map((f, i) => (
-                      <li key={i} className="text-muted-foreground">
-                        {f.name} (
-                        {Math.round((f.size / 1024 / 1024) * 100) / 100} MB)
-                      </li>
-                    ))}
-                  </ul>
+            
+            {/* Only show file upload section if folder is selected */}
+            {selectedFolderId ? (
+              <div
+                {...getRootProps({
+                  className: `rounded-2xl border border-dashed border-[#515355] bg-card p-8 grid place-items-center text-center gap-4 transition-all duration-300 ${
+                    isDragActive 
+                      ? 'border-primary bg-primary/5 scale-105 shadow-lg' 
+                      : 'hover:border-primary/50'
+                  }`,
+                })}
+              >
+                <input {...getInputProps({ name: "files" })} />
+                <Upload className={`size-8 transition-all duration-300 ${
+                  isDragActive ? 'text-primary scale-110' : 'text-muted-foreground'
+                }`} />
+                <p className={`text-sm transition-colors duration-300 ${
+                  isDragActive ? 'text-primary font-medium' : ''
+                }`}>
+                  {isDragActive
+                    ? "أسقط الملفات هنا"
+                    : "اسحب وأفلت الملفات هنا أو اخترها"}
+                </p>
+                <div className="flex items-center gap-3">
+                  <Button
+                    type="button"
+                    onClick={() => openFileDialog()}
+                    className="bg-primary text-primary-foreground px-10 py-5 cursor-pointer"
+                  >
+                    اختر الملفات
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={!canSubmit || uploadBusy}
+                    className="bg-secondary text-white px-10 py-5 cursor-pointer disabled:opacity-60"
+                  >
+                    ارفع الملف
+                  </Button>
                 </div>
-              )}
-            </div>
+                {selectedFiles.length > 0 && (
+                  <div className="mt-4 text-left w-full">
+                    <p className="text-sm mb-2">الملفات المختارة:</p>
+                    <ul className="text-xs space-y-2">
+                      {selectedFiles.map((f, i) => (
+                        <li key={i} className="flex items-center justify-between bg-background/50 p-2 rounded border border-border/50">
+                          <span className="text-muted-foreground truncate max-w-[200px]">
+                            {f.name} ({Math.round((f.size / 1024 / 1024) * 100) / 100} MB)
+                          </span>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeFile(i);
+                            }}
+                            className="text-muted-foreground hover:text-destructive transition-colors p-1 cursor-pointer"
+                          >
+                            <X className="size-3" />
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-dashed border-[#515355] bg-card/50 p-8 grid place-items-center text-center">
+                <Upload className="size-8 text-muted-foreground/50 mb-4" />
+                <p className="text-sm text-muted-foreground">
+                  الرجاء اختيار مساحة العمل أولاً
+                </p>
+              </div>
+            )}
           </form>
         </div>
       </DialogContent>

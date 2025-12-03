@@ -6,27 +6,28 @@ import { Progress } from "@/components/ui/progress";
 
 export default function StageCard({ title, stagesCount = 5, progress = 89, onOpen ,className}) {
   return (
-    <Card className={`rounded-2xl p-6 bg-gradient-to-b from-card to-card/80 text-white space-y-5 ${className}`}>
+    <Card className={`rounded-2xl p-6 bg-linear-to-b from-card to-card/80 text-white space-y-5 ${className}`} dir="rtl">
       <div className="flex items-center justify-between">
+        <div className="size-9 grid place-items-center rounded-full border border-white">
+          <GitMerge className="size-5 text-white" />
+        </div>
+        <div className="flex-1 text-right ms-2">
+          <p className="text-lg font-semibold">{title}</p>
+          <p className="text-sm font-light">عدد المراحل: {stagesCount}</p>
+        </div>
         <div className="flex items-center gap-3">
           <button onClick={onOpen} className="size-9 grid place-items-center rounded-full bg-white/25 cursor-pointer">
             <ArrowLeft className="size-5 text-white" />
           </button>
         </div>
-        <div className="flex-1 text-right me-2">
-          <p className="text-lg font-semibold">{title}</p>
-          <p className="text-sm font-light">عدد المراحل: {stagesCount}</p>
-        </div>
-        <div className="size-9 grid place-items-center rounded-full border border-white">
-          <GitMerge className="size-5 text-white" />
-        </div>
+      
       </div>
 
       <div className="space-y-2">
         <Progress value={progress} className="h-1 bg-white/40 [&_[data-slot=progress-indicator]]:bg-white" />
         <div className="flex items-center justify-between text-sm">
-          <span>{progress}%</span>
           <span>التقدم</span>
+          <span>{progress}%</span>
         </div>
       </div>
     </Card>

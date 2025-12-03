@@ -6,7 +6,7 @@ import { ArrowRight, Timer, Check, X } from "lucide-react";
 import Image from "next/image";
 import cuteOctopus from "@/assets/cute-octopus.svg";
 
-export default function TestResult({ title, total, correct, wrong, durationMs, onBack, onRestart, variant = "primary", bgClassName }) {
+export default function TestResult({ title, total, correct, wrong, durationMs, onBack, onRestart, onNextStage, variant = "primary", bgClassName }) {
   const minutes = Math.max(1, Math.round((durationMs || 0) / 60000));
   const percent = Math.round(((correct || 0) / (total || 1)) * 100);
   const isSecondary = variant === "secondary";
@@ -25,11 +25,11 @@ export default function TestResult({ title, total, correct, wrong, durationMs, o
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
-        <p className="text-xl font-semibold text-white">{title}</p>
         <Button onClick={handleBack} variant="outline" className="rounded-full py-5 px-4 bg-card cursor-pointer">
-          العودة
           <ArrowRight className="size-5 ml-1" />
+          العودة
         </Button>
+        <p className="text-xl font-semibold text-white">{title}</p>
       </div>
 
       <Card className={`rounded-2xl bg-gradient-to-b ${cardGradient} text-white p-8 ${bgClassName || ""}`}>
@@ -73,7 +73,7 @@ export default function TestResult({ title, total, correct, wrong, durationMs, o
 
       <div className="space-y-3">
         <Button onClick={onRestart} className={`w-full h-14 rounded-full ${restartBtnBg} hover:${restartBtnBg} cursor-pointer`}>إعادة الأختبار</Button>
-        <Button onClick={handleBack} variant="outline" className="w-full h-14 rounded-full cursor-pointer">العودة</Button>
+        <Button onClick={onNextStage} className="w-full h-14 rounded-full cursor-pointer bg-primary hover:bg-primary/90">المرحلة التالية</Button>
       </div>
     </div>
   );

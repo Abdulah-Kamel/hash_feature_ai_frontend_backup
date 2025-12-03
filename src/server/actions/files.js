@@ -1,5 +1,6 @@
 "use server";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 function apiBase() {
   return process.env.baseApi;
@@ -10,7 +11,7 @@ export async function uploadFiles(formData) {
   if (!base) return { success: false, error: "API base URL not configured" };
   const c = await cookies();
   const token = c.get("authToken")?.value;
-  if (!token) return { success: false, error: "No token provided" };
+  if (!token) redirect("/login");
 
   const folderId = formData.get("folderId");
   const files = formData.getAll("files");
@@ -27,6 +28,7 @@ export async function uploadFiles(formData) {
   });
   let final = null;
   try { final = await res.json(); } catch {}
+  if (res.status === 401) redirect("/login");
   if (!res.ok) return { success: false, error: final?.message || res.statusText };
   return { success: true, data: final };
 }
@@ -36,7 +38,7 @@ export async function fetchFolderFiles(folderId) {
   if (!base) return { success: false, error: "API base URL not configured" };
   const c = await cookies();
   const token = c.get("authToken")?.value;
-  if (!token) return { success: false, error: "No token provided" };
+  if (!token) redirect("/login");
   if (!folderId) return { success: false, error: "Missing folderId" };
 
   const res = await fetch(`${base}/api/v1/folders/${folderId}/files`, {
@@ -45,6 +47,7 @@ export async function fetchFolderFiles(folderId) {
   });
   let final = null;
   try { final = await res.json(); } catch {}
+  if (res.status === 401) redirect("/login");
   if (!res.ok) return { success: false, error: final?.message || res.statusText };
   return { success: true, data: final };
 }
@@ -54,7 +57,7 @@ export async function deleteFile(folderId, fileId) {
   if (!base) return { success: false, error: "API base URL not configured" };
   const c = await cookies();
   const token = c.get("authToken")?.value;
-  if (!token) return { success: false, error: "No token provided" };
+  if (!token) redirect("/login");
   if (!folderId || !fileId) return { success: false, error: "Missing IDs" };
 
   const res = await fetch(`${base}/api/v1/folders/${folderId}/files`, {
@@ -67,6 +70,31 @@ export async function deleteFile(folderId, fileId) {
   });
   let final = null;
   try { final = await res.json(); } catch {}
+  if (res.status === 401) redirect("/login");
+  if (!res.ok) return { success: false, error: final?.message || res.statusText };
+  return { success: true, data: final };
+}
+
+export async function logout() {
+  const c = await cookies();
+  c.delete("authToken");
+  redirect("/login");
+}
+
+export async function fetchUserFiles() {
+  const base = apiBase();
+  if (!base) return { success: false, error: "API base URL not configured" };
+  const c = await cookies();
+  const token = c.get("authToken")?.value;
+  if (!token) redirect("/login");
+
+  const res = await fetch(`${base}/api/v1/profiles/files`, {
+    method: "GET",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  let final = null;
+  try { final = await res.json(); } catch {}
+  if (res.status === 401) redirect("/login");
   if (!res.ok) return { success: false, error: final?.message || res.statusText };
   return { success: true, data: final };
 }

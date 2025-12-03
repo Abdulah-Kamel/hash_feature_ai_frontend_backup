@@ -2,7 +2,7 @@
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
-import { FileText } from "lucide-react";
+import { FileText, FolderClosed } from "lucide-react";
 import UploadDialogTrigger from "@/components/upload/UploadDialog";
 import WorkspaceDialogTrigger from "@/components/workspace/WorkspaceDialog";
 import { createFolder } from "@/server/actions/folders";
@@ -16,7 +16,7 @@ export default function OverviewHero() {
   const userEmail = user?.email || "";
   const userPhone = user?.phone ? String(user.phone) : "";
   return (
-    <div className="bg-gradient-to-l from-primary to-secondary rounded-xl p-6 md:p-8 flex xl:flex-row flex-col justify-between items-center gap-6">
+    <div className="bg-linear-to-l from-primary to-secondary rounded-xl p-6 md:p-8 flex xl:flex-row flex-col justify-between items-center gap-6">
       <div className="flex-1">
         <h2 className="font-semibold text-2xl xl:text-3xl text-white">
           أهلا بك يا {userName || ""}!
@@ -41,12 +41,12 @@ export default function OverviewHero() {
           <Button
             size="lg"
             variant="outline"
-            className="bg-transparent hover:bg-transparent shadow-lg px-6 py-8 xl:px-8 text-white cursor-pointer hover:shadow-2xl border-white/30"
+            className="bg-primary hover:bg-primary shadow-lg px-6 py-8 xl:px-8 text-white cursor-pointer hover:shadow-2xl border-white/30"
           >
             <FileText className="size-6" />
             <div className="text-start">
               <span className="text-base font-semibold">ملف جديد</span>
-              <p className="text-sm">إنشاء ملف جديد من خلال ملف PDF</p>
+                <p className="text-sm">إنشاء ملف جديد</p>
             </div>
           </Button>
         </UploadDialogTrigger>
@@ -74,12 +74,12 @@ export default function OverviewHero() {
           <Button
             size="lg"
             variant="outline"
-            className="bg-transparent hover:bg-transparent shadow-lg px-6 py-8 xl:px-8 text-white cursor-pointer hover:shadow-2xl border-white/30"
+            className="bg-primary hover:bg-primary shadow-lg px-6 py-8 xl:px-8 text-white cursor-pointer hover:shadow-2xl border-white/30"
           >
-            <FileText className="size-6" />
+            <FolderClosed className="size-6" />
             <div className="text-start">
               <span className="text-base font-semibold">مجلد جديد</span>
-              <p className="text-sm">إنشاء مجلد جديد يحتوي على ملفات</p>
+              <p className="text-sm">إنشاء مجلد جديد</p>
             </div>
           </Button>
         </WorkspaceDialogTrigger>

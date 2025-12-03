@@ -14,30 +14,30 @@ export default function StageLearn({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl md:text-2xl font-semibold text-white flex-1">
-          {title}
-        </h1>
         <Button
           onClick={onBack}
           variant="outline"
           className="rounded-full p-4 bg-card cursor-pointer"
         >
-          العودة
           <ArrowRight className="size-5 ml-2" />
+          العودة
         </Button>
+        <h1 className="text-xl text-end md:text-2xl font-semibold text-white flex-1">
+          {title}
+        </h1>
       </div>
       <div className="h-px bg-[#515355]" />
 
       <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-semibold text-white text-right">
+          محتوى المرحلة
+        </h2>
         <Button
           onClick={onOpenMcq}
           className="rounded-lg h-10 px-4 cursor-pointer"
         >
           ابدأ اختبار المرحلة
         </Button>
-        <h2 className="text-2xl font-semibold text-white text-right">
-          محتوى المرحلة
-        </h2>
       </div>
 
       <div className="space-y-10">

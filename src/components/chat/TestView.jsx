@@ -36,6 +36,7 @@ export default function TestView({
   data,
   onBack,
   onFinish,
+  onNextStage,
 }) {
   const [current, setCurrent] = React.useState(index);
   const [selected, setSelected] = React.useState(null);
@@ -153,6 +154,7 @@ export default function TestView({
         wrong={wrongCount}
         durationMs={durationMs}
         onBack={onBack}
+        onNextStage={onNextStage}
         onRestart={() => {
           setCurrent(1);
           setSelected(null);
@@ -170,18 +172,18 @@ export default function TestView({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-xl font-semibold text-white">{title}</p>
         <button
           onClick={onBack}
           className="inline-flex items-center gap-2 rounded-xl bg-card px-4 py-3 cursor-pointer"
         >
-          <span className="text-sm text-muted-foreground">العودة</span>
           <ArrowRight className="size-5" />
+          <span className="text-sm text-white">العودة</span>
         </button>
+        <p className="text-xl font-semibold text-white">{title}</p>
       </div>
 
       <div className="space-y-2">
-        <div className="flex justify-end">
+        <div className="flex justify-start">
           <span className="border rounded-full bg-primary px-3 py-1 text-white text-sm">
             {current} / {total}
           </span>
