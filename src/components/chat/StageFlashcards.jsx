@@ -118,21 +118,21 @@ export default function StageFlashcards({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-7xl mx-auto">
       <div className="flex items-center justify-between">
-        <p className="text-xl font-semibold text-white">{title}</p>
         <Button
           onClick={onBack}
           variant="outline"
-          className="rounded-full h-10 px-4 bg-card"
+          className="rounded-full h-10 px-4 bg-card cursor-pointer"
         >
+          <ArrowRight className="size-5 mr-2" />
           العودة
-          <ArrowRight className="size-5 ml-2" />
         </Button>
+        <p className="text-xl font-semibold text-white">{title}</p>
       </div>
 
       <div className="space-y-2">
-        <div className="flex justify-end">
+        <div className="flex justify-start">
           <span className="border rounded-full bg-primary px-3 py-1 text-white text-sm">
             {current} / {cards.length}
           </span>
@@ -147,92 +147,129 @@ export default function StageFlashcards({
             className="absolute left-1/2 -translate-x-1/2 rounded-2xl bg-card shadow-sm pointer-events-none"
             style={{
               top: 30 + i * 20,
-              width: "92%",
+              width: "85%",
               height: 420 - i * 10,
               opacity: 0.9 - i * 0.25,
             }}
           />
         ))}
-        <Card
+        <div 
           onClick={() => setFlipped((f) => !f)}
-          className="absolute py-0 px-4 border-0 shadow-none inset-0 rounded-2xl bg-linear-to-b from-primary/80 to-primary text-white flex items-center justify-center cursor-pointer"
+          className="absolute inset-0 cursor-pointer"
+          style={{ perspective: '1000px' }}
         >
-          {!flipped ? (
-            <div className="text-center space-y-4">
-              <p className="text-2xl">{cards[current - 1].q}</p>
-            </div>
-          ) : (
-            <div className="text-center space-y-4">
-              <p className="text-2xl">{cards[current - 1].a}</p>
-            </div>
-          )}
-          <div className="mx-auto mt-4 w-fit border border-white rounded-full px-4 py-1">
-            اضغط لقلب الكارت
-          </div>
-          {showHint && (
-            <div className="absolute bottom-6 left-6">
-              <div className="flex items-start justify-between bg-white text-[#303030] rounded-2xl px-3 py-2 w-[280px] shadow-sm">
+          <div
+            className="relative w-[85%] mx-auto h-full transition-transform duration-700"
+            style={{
+              transformStyle: 'preserve-3d',
+              transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
+            }}
+          >
+            {/* Front of card (Question) */}
+            <Card 
+              className="absolute inset-0 border-0 shadow-none rounded-2xl bg-linear-to-b from-primary/80 to-primary text-white flex flex-col items-center justify-center px-4 py-0"
+              style={{
+                backfaceVisibility: 'hidden',
+                WebkitBackfaceVisibility: 'hidden',
+              }}
+            >
+              <div className="text-center space-y-12">
+                <p className="text-2xl font-bold">السؤال؟</p>
+                <p className="text-2xl">{cards[current - 1].q}</p>
+              </div>
+              <div className="mx-auto mt-4 w-fit border border-white rounded-full px-4 py-1">
+                اضغط لقلب الكارت
+              </div>
+              {showHint && (
+                <div className="absolute bottom-6 left-6">
+                  <div className="flex items-start justify-between bg-white text-[#303030] rounded-2xl px-3 py-2 w-[280px] shadow-sm">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowHint(false);
+                      }}
+                      className="mt-1 h-6 w-6 grid place-items-center rounded-full cursor-pointer"
+                    >
+                      <X className="size-4" />
+                    </button>
+                    <p className="text-sm text-right">{cards[current - 1].hint}</p>
+                  </div>
+                </div>
+              )}
+              {cards[current - 1]?.hint && (
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    setShowHint(false);
+                    setShowHint(true);
                   }}
-                  className="mt-1 h-6 w-6 grid place-items-center rounded-full cursor-pointer"
+                  className="absolute bottom-6 left-6 h-8 w-8 grid place-items-center rounded-full bg-white/20 border border-white/50 cursor-pointer"
+                  aria-label="إظهار التلميح"
                 >
-                  <X className="size-4" />
+                  <Lightbulb className="size-5 text-white" />
                 </button>
-                <p className="text-sm text-right">{cards[current - 1].hint}</p>
-              </div>
-            </div>
-          )}
-          {cards[current - 1]?.hint && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowHint(true);
+              )}
+            </Card>
+            
+            {/* Back of card (Answer) */}
+            <Card 
+              className="absolute inset-0 border-0 shadow-none rounded-2xl bg-linear-to-b from-secondary/80 to-secondary text-white flex flex-col items-center justify-center px-4 py-0"
+              style={{
+                backfaceVisibility: 'hidden',
+                WebkitBackfaceVisibility: 'hidden',
+                transform: 'rotateY(180deg)',
               }}
-              className="absolute bottom-6 left-6 h-8 w-8 grid place-items-center rounded-full bg-white/20 border border-white/50 cursor-pointer"
-              aria-label="إظهار التلميح"
             >
-              <Lightbulb className="size-5 text-white" />
-            </button>
-          )}
-        </Card>
+              <div className="text-center space-y-12">
+                <p className="text-2xl font-bold">الجواب.</p>
+                <p className="text-2xl">{cards[current - 1].a}</p>
+              </div>
+              <div className="mx-auto mt-4 w-fit border border-white rounded-full px-4 py-1">
+                اضغط لقلب الكارت
+              </div>
+            </Card>
+          </div>
+        </div>
       </div>
-      <div className="flex items-center justify-center mt-10 gap-4">
-        <Button
-          onClick={markWrong}
-          variant="outline"
-          className="rounded-xl py-6 cursor-pointer px-6 border-red-500 text-red-500"
-        >
-          <X className="size-5 mr-2" />
-          أجبتها خطا
-        </Button>
+      <div 
+        className={`flex items-center justify-center mt-10 gap-4 transition-all duration-500 ${
+          flipped 
+            ? "opacity-100 translate-y-0" 
+            : "opacity-0 translate-y-4 pointer-events-none"
+        }`}
+      >
         <Button
           onClick={markCorrect}
           variant="outline"
           className="rounded-xl py-6 cursor-pointer px-6 border-emerald-600 text-emerald-600"
         >
-          <Check className="size-5 mr-2" />
           أجبتها صح
+          <Check className="size-5 me-2" />
+        </Button>
+        <Button
+          onClick={markWrong}
+          variant="outline"
+          className="rounded-xl py-6 cursor-pointer px-6 border-red-500 text-red-500"
+        >
+          أجبتها خطا
+          <X className="size-5 me-2" />
         </Button>
       </div>
       <div className="flex items-center justify-between mt-1">
-        <Button
-          onClick={goNext}
-          variant="outline"
-          className="rounded-xl py-6 cursor-pointer px-6 border-primary text-primary"
-        >
-          <ArrowRight className="size-5 mr-2" />
-          التالي
-        </Button>
         <Button
           onClick={goPrev}
           variant="outline"
           className="rounded-xl py-6 cursor-pointer px-6"
         >
+          <ArrowRight className="size-5 me-2" />
           السابق
-          <ArrowRight className="size-5 mr-2" />
+        </Button>
+        <Button
+          onClick={goNext}
+          variant="outline"
+          className="rounded-xl py-6 cursor-pointer px-6 border-primary text-primary"
+        >
+          التالي
+          <ArrowLeft className="size-5 ms-2" />
         </Button>
       </div>
     </div>

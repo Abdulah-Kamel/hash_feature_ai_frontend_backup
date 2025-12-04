@@ -16,6 +16,12 @@ export const useFileStore = create((set, get) => ({
       else next.add(id);
       return { selectedIds: next };
     }),
+  selectAll: () =>
+    set((state) => {
+      const allIds = new Set(state.files.map((f) => f.id));
+      return { selectedIds: allIds };
+    }),
+  deselectAll: () => set({ selectedIds: new Set() }),
   clearSelection: () => set({ selectedIds: new Set() }),
   getSelectedIds: () => Array.from(get().selectedIds),
 }));

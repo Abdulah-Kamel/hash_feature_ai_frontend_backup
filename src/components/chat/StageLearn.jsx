@@ -19,7 +19,7 @@ export default function StageLearn({
           variant="outline"
           className="rounded-full p-4 bg-card cursor-pointer"
         >
-          <ArrowRight className="size-5 ml-2" />
+          <ArrowRight className="size-5 mr-2" />
           العودة
         </Button>
         <h1 className="text-xl text-end md:text-2xl font-semibold text-white flex-1">

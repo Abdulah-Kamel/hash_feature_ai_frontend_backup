@@ -12,6 +12,9 @@ import {
   Trash2,
   LogOut,
   ChevronUp,
+  GitMerge,
+  Layers,
+  FileQuestion,
 } from "lucide-react";
 import UploadDialogTrigger from "@/components/upload/UploadDialog";
 import { useFileStore } from "@/store/fileStore";
@@ -35,7 +38,7 @@ import Link from "next/link";
 import Image from "next/image";
 import logo from "@/assets/logo.svg";
 import useAuth from "@/hooks/use-auth";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -82,10 +85,12 @@ function SourceItem({ label, checked, onToggle, onDelete }) {
 }
 
 export default function ChatSidebar() {
+  const pathname = usePathname();
   const files = useFileStore((s) => s.files);
   const selectedIds = useFileStore((s) => s.selectedIds);
   const toggleSelect = useFileStore((s) => s.toggleSelect);
   const isUploading = useFileStore((s) => s.isUploading);
+  const folderId = useFileStore((s) => s.folderId);
   console.log(selectedIds);
 
   const sources = React.useMemo(() => {
@@ -156,6 +161,55 @@ export default function ChatSidebar() {
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroup>
+        
+        {/* Feature Navigation */}
+        {folderId && (
+          <>
+            <SidebarSeparator />
+            <SidebarGroup title="الأقسام">
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton 
+                    asChild 
+                    className="py-5"
+                    isActive={pathname?.includes('/stages')}
+                  >
+                    <Link href={`/dashboard/folders/${folderId}/stages`}>
+                      <GitMerge className="size-4" />
+                      <span>المراحل</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton 
+                    asChild 
+                    className="py-5"
+                    isActive={pathname?.includes('/flashcards')}
+                  >
+                    <Link href={`/dashboard/folders/${folderId}/flashcards`}>
+                      <Layers className="size-4" />
+                      <span>البطاقات التعليمية</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton 
+                    asChild 
+                    className="py-5"
+                    isActive={pathname?.includes('/tests')}
+                  >
+                    <Link href={`/dashboard/folders/${folderId}/tests`}>
+                      <FileQuestion className="size-4" />
+                      <span>الاختبارات</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroup>
+          </>
+        )}
+        
+        <SidebarSeparator />
         <SidebarGroup title="المصادر">
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm text-foreground/80">اختر المصادر</p>
@@ -171,6 +225,30 @@ export default function ChatSidebar() {
             </UploadDialogTrigger>
           </div>
           <div className="space-y-4 mt-4">
+            {/* Select All Checkbox */}
+            {files.length > 0 && (
+              <div className="w-full flex items-center justify-between gap-2 rounded-xl bg-card px-3 py-2 border border-primary/30">
+                <button
+                  onClick={() => {
+                    const allSelected = files.length > 0 && selectedIds.size === files.length;
+                    if (allSelected) {
+                      useFileStore.getState().deselectAll();
+                    } else {
+                      useFileStore.getState().selectAll();
+                    }
+                  }}
+                  className="flex items-center justify-start gap-2 text-sm flex-1 min-w-0 cursor-pointer"
+                >
+                  <Checkbox
+                    checked={files.length > 0 && selectedIds.size === files.length}
+                    readOnly
+                    className="data-[state=checked]:bg-primary border-white shrink-0"
+                  />
+                  <span className="font-medium">تحديد الكل</span>
+                </button>
+              </div>
+            )}
+            
             {sources.map((s, i) => (
               <SourceItem
                 key={s.id}

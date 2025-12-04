@@ -20,6 +20,7 @@ export default function StagesPanel() {
   const [genBusy, setGenBusy] = React.useState(false);
   const [stageOpen, setStageOpen] = React.useState(false);
   const [stageTitle, setStageTitle] = React.useState("");
+  const [currentMode, setCurrentMode] = React.useState("list");
   
   const folderId = useFileStore((s) => s.folderId);
   const getSelectedIds = useFileStore((s) => s.getSelectedIds);
@@ -76,22 +77,24 @@ export default function StagesPanel() {
   };
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col max-w-7xl mx-auto">
       <div className="space-y-4 flex-1 overflow-y-auto pr-2">
-        <Button
-          onClick={() => setStageOpen(true)}
-          disabled={genBusy}
-          className="w-full h-14 rounded-lg bg-primary/20 text-primary-foreground justify-center gap-2 cursor-pointer disabled:opacity-60"
-        >
-          {genBusy ? (
-            <Spinner className="size-5" />
-          ) : (
-            <PlusCircle className="size-6" />
-          )}
-          إنشاء مراحل
-        </Button>
+        {currentMode === "list" && (
+          <Button
+            onClick={() => setStageOpen(true)}
+            disabled={genBusy}
+            className="w-full h-14 rounded-lg bg-primary/20 text-primary-foreground justify-center gap-2 cursor-pointer disabled:opacity-60"
+          >
+            {genBusy ? (
+              <Spinner className="size-5" />
+            ) : (
+              <PlusCircle className="size-6" />
+            )}
+            إنشاء مراحل
+          </Button>
+        )}
         <div className="">
-          <StageSwitcher shouldLoad={true} />
+          <StageSwitcher shouldLoad={true} onModeChange={setCurrentMode} />
         </div>
       </div>
 

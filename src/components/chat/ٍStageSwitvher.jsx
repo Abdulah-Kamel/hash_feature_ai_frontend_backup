@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import TestView from "@/components/chat/TestView";
 
-export default function StageSwitcher({ shouldLoad = false }) {
+export default function StageSwitcher({ shouldLoad = false, onModeChange }) {
   const router = useRouter();
   const [mode, setMode] = useState("list");
   const [selected, setSelected] = useState(null);
@@ -25,6 +25,11 @@ export default function StageSwitcher({ shouldLoad = false }) {
   const isGenerating = useAiContentStore((s) => s.stagesGenerating);
   const setStages = useAiContentStore((s) => s.setStages);
   const setLoading = useAiContentStore((s) => s.setStagesLoading);
+  
+  // Notify parent when mode changes
+  useEffect(() => {
+    onModeChange?.(mode);
+  }, [mode, onModeChange]);
   
   const load = useCallback(async () => {
     if (!folderId) return;

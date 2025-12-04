@@ -26,7 +26,7 @@ export default function TestResult({ title, total, correct, wrong, durationMs, o
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <Button onClick={handleBack} variant="outline" className="rounded-full py-5 px-4 bg-card cursor-pointer">
-          <ArrowRight className="size-5 ml-1" />
+          <ArrowRight className="size-5 mr-1" />
           العودة
         </Button>
         <p className="text-xl font-semibold text-white">{title}</p>

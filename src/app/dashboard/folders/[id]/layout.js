@@ -28,7 +28,7 @@ export default function FolderLayout({ children }) {
       initials: "SL",
       time: "10:25",
       outgoing: false,
-      content: <p>Hello! I’m your personal AI Assistant Slothpilot.</p>,
+      content: <p>اهلا بك انا مساعدك هاش, كيف يمكنني مساعدتك اليوم؟</p>,
     },
   ]);
 
@@ -134,6 +134,11 @@ export default function FolderLayout({ children }) {
         name: it.fileName,
       }));
       setFiles(normalized);
+      
+      // Auto-select all files
+      if (normalized.length > 0) {
+        useFileStore.getState().selectAll();
+      }
     }
     if (res?.status) {
       if (res.status === 401) {

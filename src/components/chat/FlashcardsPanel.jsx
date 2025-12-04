@@ -20,6 +20,7 @@ export default function FlashcardsPanel() {
   const [flashBusy, setFlashBusy] = React.useState(false);
   const [flashOpen, setFlashOpen] = React.useState(false);
   const [flashTitle, setFlashTitle] = React.useState("");
+  const [currentMode, setCurrentMode] = React.useState("list");
   
   const folderId = useFileStore((s) => s.folderId);
   const getSelectedIds = useFileStore((s) => s.getSelectedIds);
@@ -76,21 +77,23 @@ export default function FlashcardsPanel() {
   };
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col max-w-7xl mx-auto">
       <div className="space-y-4 flex-1 overflow-y-auto pr-2">
-        <Button
-          onClick={() => setFlashOpen(true)}
-          disabled={flashBusy}
-          className="w-full h-14 rounded-lg bg-primary/20 text-primary-foreground justify-center gap-2 cursor-pointer disabled:opacity-60"
-        >
-          {flashBusy ? (
-            <Spinner className="size-5" />
-          ) : (
-            <PlusCircle className="size-6" />
-          )}
-          إنشاء كروت الفلاش
-        </Button>
-        <FlashcardsSwitcher shouldLoad={true} />
+        {currentMode === "list" && (
+          <Button
+            onClick={() => setFlashOpen(true)}
+            disabled={flashBusy}
+            className="w-full h-14 rounded-lg bg-primary/20 text-primary-foreground justify-center gap-2 cursor-pointer disabled:opacity-60"
+          >
+            {flashBusy ? (
+              <Spinner className="size-5" />
+            ) : (
+              <PlusCircle className="size-6" />
+            )}
+            إنشاء كروت الفلاش
+          </Button>
+        )}
+        <FlashcardsSwitcher shouldLoad={true} onModeChange={setCurrentMode} />
       </div>
 
       <Dialog open={flashOpen} onOpenChange={setFlashOpen}>

@@ -135,7 +135,7 @@ export default function TestsPanel() {
   }, [folderId]);
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col max-w-7xl mx-auto">
       <div className="space-y-4 flex-1 overflow-y-auto pr-2">
         {testsMode === "view" && mcqView ? (
           <TestView
@@ -171,11 +171,12 @@ export default function TestsPanel() {
               <PlusCircle className="size-6" />
               إنشاء اختبارات
             </Button>
-            <div className="mt-4 space-y-4">
+            <div className="space-y-4 grid grid-cols-1 md:grid-cols-2 gap-4">
               {mcqsLoading && (
                 <>
-                  <SkeletonCard className="bg-gradient-to-b from-secondary/80 to-secondary" />
-                  <SkeletonCard className="bg-gradient-to-b from-secondary/80 to-secondary" />
+                  <SkeletonCard className="bg-linear-to-b from-secondary/80 to-secondary" />
+                  <SkeletonCard className="bg-linear-to-b from-secondary/80 to-secondary" />
+                  <SkeletonCard className="bg-linear-to-b from-secondary/80 to-secondary" />
                 </>
               )}
               {!mcqsLoading && mcqs.length === 0 && (
@@ -207,7 +208,7 @@ export default function TestsPanel() {
                       title={title}
                       stagesCount={total}
                       progress={progress}
-                      className="bg-secondary"
+                      variant="green"
                       onOpen={() => {
                         setMcqView({
                           id: it.id || it._id,

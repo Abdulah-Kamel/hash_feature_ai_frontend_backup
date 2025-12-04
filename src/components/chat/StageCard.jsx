@@ -4,9 +4,18 @@ import { Card } from "@/components/ui/card";
 import { ArrowLeft, GitMerge, Share2 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
-export default function StageCard({ title, stagesCount = 5, progress = 89, onOpen ,className}) {
+export default function StageCard({ title, stagesCount = 5, progress = 89, onOpen, className, variant = "primary" }) {
+  // Define color classes based on variant
+  const colorClasses = {
+    primary: "bg-linear-to-b from-primary/80 to-primary",
+    secondary: "bg-linear-to-b from-secondary/80 to-secondary",
+    green: "bg-linear-to-b from-[#278F5C]/80 to-[#278F5C]",
+  };
+
+  const bgClass = colorClasses[variant] || colorClasses.primary;
+
   return (
-    <Card className={`rounded-2xl p-6 bg-linear-to-b from-card to-card/80 text-white space-y-5 ${className}`} dir="rtl">
+    <Card className={`rounded-2xl p-6 ${bgClass} text-white space-y-5 ${className || ""}`} dir="rtl">
       <div className="flex items-center justify-between">
         <div className="size-9 grid place-items-center rounded-full border border-white">
           <GitMerge className="size-5 text-white" />

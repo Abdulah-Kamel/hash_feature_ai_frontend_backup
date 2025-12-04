@@ -9,13 +9,13 @@ export default function StageFlashcardsResult({ title, total, correct, wrong, du
   const minutes = Math.max(1, Math.round(durationMs / 60000));
   const percent = Math.round(((correct || 0) / (total || 1)) * 100);
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 max-w-7xl mx-auto">
       <div className="flex items-center justify-between">
-        <p className="text-xl font-semibold text-white">{title}</p>
         <Button onClick={onBack} variant="outline" className="rounded-full py-5 px-4 bg-card cursor-pointer">
+          <ArrowRight className="size-5 mr-1" />
           العودة
-          <ArrowRight className="size-5 ml-1" />
         </Button>
+        <p className="text-xl font-semibold text-white">{title}</p>
       </div>
 
       <Card className="rounded-2xl bg-gradient-to-b from-primary/80 to-primary text-white p-8">
