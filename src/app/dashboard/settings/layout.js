@@ -7,7 +7,7 @@ import { SidebarInset } from "@/components/ui/sidebar";
 export default function SettingsLayout({ children }) {
   const pathname = usePathname();
   const tabs = [
-    { href: "/dashboard/settings/settings", label: "إعدادات" },
+    { href: "/dashboard/settings", label: "إعدادات" },
     { href: "/dashboard/settings/profile", label: "الملف الشخصي" },
     { href: "/dashboard/settings/billing", label: "الإشتراك" },
     { href: "/dashboard/settings/usage", label: "الإستهلاك" },

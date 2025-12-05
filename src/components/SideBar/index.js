@@ -57,6 +57,7 @@ const Index = ({ variant = "global" }) => {
   const [userFiles, setUserFiles] = React.useState([]);
   const [filesLoading, setFilesLoading] = React.useState(false);
   const [filesExpanded, setFilesExpanded] = React.useState(true);
+  const [deletingIds, setDeletingIds] = React.useState(new Set());
   const files = useFileStore((s) => s.files);
   const router = useRouter();
   
@@ -84,6 +85,18 @@ const Index = ({ variant = "global" }) => {
     };
     
     loadUserFiles();
+    
+    // Listen for files:refresh event to reload files after upload
+    const handleRefresh = () => {
+      console.log("files:refresh event received in SideBar, reloading user files...");
+      loadUserFiles();
+    };
+    
+    window.addEventListener("files:refresh", handleRefresh);
+    
+    return () => {
+      window.removeEventListener("files:refresh", handleRefresh);
+    };
   }, []);
   
   const handleDeleteFile = async (file) => {
@@ -93,18 +106,41 @@ const Index = ({ variant = "global" }) => {
       return;
     }
     
+    const fileId = file._id || file.id;
+    
+    // Add to deleting set
+    setDeletingIds(prev => new Set(prev).add(fileId));
+    
     const toastId = toast.loading("جارٍ حذف الملف...");
     try {
-      const res = await deleteFile(folderId, file._id || file.id);
+      const res = await deleteFile(folderId, fileId);
       if (res?.success) {
         toast.success("تم حذف الملف بنجاح", { id: toastId });
         // Remove file from local state
-        setUserFiles(prev => prev.filter(f => (f._id || f.id) !== (file._id || file.id)));
+        setUserFiles(prev => prev.filter(f => (f._id || f.id) !== fileId));
+        // Remove from deleting set
+        setDeletingIds(prev => {
+          const next = new Set(prev);
+          next.delete(fileId);
+          return next;
+        });
       } else {
         toast.error(res?.error || "فشل حذف الملف", { id: toastId });
+        // Remove from deleting set on error
+        setDeletingIds(prev => {
+          const next = new Set(prev);
+          next.delete(fileId);
+          return next;
+        });
       }
     } catch (error) {
       toast.error("حدث خطأ أثناء الحذف", { id: toastId });
+      // Remove from deleting set on error
+      setDeletingIds(prev => {
+        const next = new Set(prev);
+        next.delete(fileId);
+        return next;
+      });
     }
   };
   
@@ -239,26 +275,43 @@ const Index = ({ variant = "global" }) => {
                     ))}
                   </>
                 ) : Array.isArray(userFiles) && userFiles.length > 0 ? (
-                  userFiles.map((f) => (
-                    <SidebarMenuItem key={f._id || f.id || f.fileName}>
-                      <SidebarMenuButton className="py-4 justify-between group">
-                        <div className="flex items-center gap-2 min-w-0">
-                          <FileText className="size-4 shrink-0" />
-                          <span className="truncate">{fixArabicFilename(f.fileName || f.name)}</span>
-                        </div>
-                        <div 
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            handleDeleteFile(f);
-                          }}
-                          className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:text-destructive cursor-pointer"
+                  userFiles.map((f) => {
+                    const fileId = f._id || f.id;
+                    const isDeleting = deletingIds.has(fileId);
+                    
+                    return (
+                      <SidebarMenuItem key={fileId || f.fileName}>
+                        <SidebarMenuButton 
+                          className={`py-4 justify-between group transition-all duration-300 ${
+                            isDeleting ? 'opacity-50 pointer-events-none' : ''
+                          }`}
                         >
-                          <Trash2 className="size-4" />
-                        </div>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))
+                          <div className="flex items-center gap-2 min-w-0">
+                            <FileText className="size-4 shrink-0" />
+                            <span className="truncate">{fixArabicFilename(f.fileName || f.name)}</span>
+                          </div>
+                          <div 
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              if (!isDeleting) {
+                                handleDeleteFile(f);
+                              }
+                            }}
+                            className={`opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:text-destructive cursor-pointer ${
+                              isDeleting ? 'opacity-100 cursor-not-allowed' : ''
+                            }`}
+                          >
+                            {isDeleting ? (
+                              <div className="size-4 border-2 border-muted-foreground border-t-transparent rounded-full animate-spin" />
+                            ) : (
+                              <Trash2 className="size-4" />
+                            )}
+                          </div>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })
                 ) : (
                   <SidebarMenuItem>
                     <SidebarMenuButton className="py-4 justify-start">
@@ -308,7 +361,7 @@ const Index = ({ variant = "global" }) => {
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuItem asChild>
                 <Link
-                  href="/dashboard/settings/settings"
+                  href="/dashboard/settings"
                   className="cursor-pointer"
                 >
                   <Settings className="size-4 ml-2" />
@@ -320,7 +373,7 @@ const Index = ({ variant = "global" }) => {
                 onClick={handleLogout}
                 className="cursor-pointer text-destructive focus:text-destructive"
               >
-                <LogOut className="size-4 ml-2" />
+              <LogOut className="size-4 ml-2" />
                 تسجيل الخروج
               </DropdownMenuItem>
             </DropdownMenuContent>

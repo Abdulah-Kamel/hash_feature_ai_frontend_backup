@@ -158,7 +158,10 @@ export default function FolderLayout({ children }) {
 
   React.useEffect(() => {
     loadFiles();
-    const fn = () => loadFiles();
+    const fn = () => {
+      console.log("files:refresh event received, reloading files...");
+      loadFiles();
+    };
     window.addEventListener("files:refresh", fn);
     return () => {
       window.removeEventListener("files:refresh", fn);

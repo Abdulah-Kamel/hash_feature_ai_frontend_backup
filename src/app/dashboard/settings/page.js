@@ -87,33 +87,6 @@ export default function SettingsPage() {
         <h1 className="text-3xl font-bold text-white">الإعدادات</h1>
       </div>
       <Tabs value={tab} onValueChange={setTab} className="space-y-6" dir="rtl">
-        <TabsList className="bg-card p-2 rounded-lg w-full grid grid-cols-2 md:grid-cols-4 gap-4 h-full">
-          <TabsTrigger
-            value="settings"
-            className="rounded-lg px-6 py-3 bg-background data-[state=active]:bg-primary data-[state=active]:text-primary-foreground cursor-pointer"
-          >
-            إعدادات
-          </TabsTrigger>
-          <TabsTrigger
-            value="profile"
-            className="rounded-lg px-6 py-3 bg-background data-[state=active]:bg-primary data-[state=active]:text-primary-foreground cursor-pointer"
-          >
-            الملف الشخصي
-          </TabsTrigger>
-          <TabsTrigger
-            value="billing"
-            className="rounded-lg px-6 py-3 bg-background data-[state=active]:bg-primary data-[state=active]:text-primary-foreground cursor-pointer"
-          >
-            الإشتراك
-          </TabsTrigger>
-          <TabsTrigger
-            value="usage"
-            className="rounded-lg px-6 py-3 bg-background data-[state=active]:bg-primary data-[state=active]:text-primary-foreground cursor-pointer"
-          >
-            الاستخدام
-          </TabsTrigger>
-        </TabsList>
-
         <TabsContent value="settings" className="space-y-6">
           <SocialAccountsCard />
           <LanguageCard value={lang} onChange={setLang} languages={languages} />

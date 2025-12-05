@@ -5,6 +5,26 @@ import BillingPlans from "@/components/settings/BillingPlans";
 import FaqAccordion from "@/components/settings/FaqAccordion";
 
 export default function BillingTabPage() {
+  const [currentPlan, setCurrentPlan] = React.useState("free");
+
+  React.useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const res = await fetch("/api/profiles", { credentials: "include" });
+        const json = await res.json();
+        if (!active) return;
+        const plan = json?.data?.plan || "free";
+        setCurrentPlan(plan);
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
+
   return (
     <div className="space-y-8" dir="rtl">
       <div className="space-y-2">
@@ -17,7 +37,7 @@ export default function BillingTabPage() {
           <p className="text-lg text-white">هل أنت جاد بشأن التعلم المُعزز بالذكاء الاصطناعي؟ جرّب باقة مدفوعة وادرس بكفاءة أكبر بعشر مرات.</p>
           <p className="text-sm text-white/90">وفّر ساعات من إعداد البطاقات التعليمية والملاحظات وأسئلة الامتحانات يوميًا مع هاش بلس.</p>
         </div>
-        <BillingPlans />
+        <BillingPlans currentPlan={currentPlan} />
       </Card>
       <FaqAccordion />
     </div>

@@ -24,7 +24,11 @@ const PricingSection = () => {
           المُخصّص لك.
         </p>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 justify-items-center gap-8 w-full max-w-7xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 justify-items-center gap-8 w-full max-w-7xl mx-auto relative">
+           <div className="absolute inset-0 -z-10 h-full w-full">
+                <div className="absolute top-0 left-0 w-full h-full bg-[url('/stars-bg.png')] bg-cover bg-center opacity-60 mix-blend-screen animate-pulse"></div>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/20 rounded-full blur-[120px] opacity-50"></div>
+              </div>
         <Card className="bg-card border border-border/50 py-4 flex flex-col">
           <CardHeader>
             <CardTitle className="text-2xl text-white">

@@ -2,7 +2,8 @@
 import * as React from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Sparkles, SaudiRiyal } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Sparkles, SaudiRiyal, Check } from "lucide-react";
 
 function Feature({ children }) {
   return (
@@ -13,14 +14,41 @@ function Feature({ children }) {
   );
 }
 
-export default function BillingPlans() {
+import { createProPlanCheckoutSession } from "@/server/actions/payments";
+import { toast } from "sonner";
+
+export default function BillingPlans({ currentPlan = "free" }) {
   const [period, setPeriod] = React.useState("month");
+  const [loading, setLoading] = React.useState(false);
   const price = period === "month" ? 59 : period === "quarter" ? 149 : 499;
   const options = [
-    { v: "year", label: "سنة" },
-    { v: "quarter", label: "3 شهور" },
     { v: "month", label: "شهر" },
+    { v: "quarter", label: "3 شهور" },
+    { v: "year", label: "سنة" },
   ];
+  
+  const isFreePlan = currentPlan === "free";
+  const isProPlan = currentPlan === "pro" || currentPlan === "premium";
+
+  const handleSubscribe = async () => {
+    setLoading(true);
+    const toastId = toast.loading("جاري تحويلك لصفحة الدفع...");
+    
+    try {
+      const res = await createProPlanCheckoutSession();
+      if (res.success && res.data?.session_url) {
+        window.location.href = res.data.session_url;
+      } else {
+        toast.error(res.error || "حدث خطأ أثناء إنشاء جلسة الدفع", { id: toastId });
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("حدث خطأ غير متوقع", { id: toastId });
+      setLoading(false);
+    }
+  };
+  
   return (
     <div className="space-y-6 max-w-[770px] mx-auto py-4">
       <div className="mx-auto border border-[#383839] rounded-[15px] bg-[#30303080] p-1 grid grid-cols-3 text-white">
@@ -30,18 +58,27 @@ export default function BillingPlans() {
             variant={period === opt.v ? "default" : "ghost"}
             className="rounded-[15px] h-[32px]"
             onClick={() => setPeriod(opt.v)}
-          >
+          > 
             {opt.label}
           </Button>
         ))}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-        <Card className="rounded-[20px] p-4 border border-[#515355] bg-[#303030] text-white gap-3">
+        {/* Free Plan */}
+        <Card className={`rounded-[20px] p-4  text-white gap-3 ${
+          isFreePlan ? 'border-primary bg-[#303030] ' : 'border-[#515355] bg-[#303030]'
+        }`}>
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xl font-semibold">الخطة المجانية</p>
             </div>
+            {isFreePlan && (
+              <Badge className="bg-primary text-white border-0 gap-1.5">
+                <Check className="size-3.5" />
+                الخطة الحالية
+              </Badge>
+            )}
           </div>
           <p className="text-sm text-white/80 mt-2">
             طريقة رائعة لتجربة قوة الدراسة المعززة بالذكاء الاصطناعي.
@@ -58,19 +95,31 @@ export default function BillingPlans() {
             <Feature>حتى 50 صفحة/PDF</Feature>
           </div>
           <Button
-            variant="outline"
+            variant={isFreePlan ? "secondary" : "outline"}
             className="mt-auto w-full rounded-lg cursor-pointer py-5"
+            disabled={isFreePlan}
           >
-            ابدأ الآن
+            {isFreePlan ? "الخطة الحالية" : "ابدأ الآن"}
           </Button>
         </Card>
-        <Card className="rounded-[20px] p-4 border border-primary bg-[#303030] text-white gap-3">
+        
+        {/* Pro Plan */}
+        <Card className={`rounded-[20px] p-4 border text-white gap-3 ${
+          isProPlan ? 'border-primary bg-[#303030] ring-2 ring-primary ring-offset-2 ring-offset-background' : ''
+        }`}>
           <div className="flex items-center justify-between">
             <p className="mt-3 text-xl font-semibold">المحترف</p>
-            <div className="inline-flex items-center gap-2 bg-primary text-white rounded-lg px-3 py-2 text-xs">
-              الأكثر شهرة
-              <Sparkles className="size-4" />
-            </div>
+            {isProPlan ? (
+              <Badge className="bg-primary text-white border-0 gap-1.5">
+                <Check className="size-3.5" />
+                الخطة الحالية
+              </Badge>
+            ) : (
+              <div className="inline-flex items-center gap-2 bg-primary text-white rounded-lg px-3 py-2 text-xs">
+                الأكثر شهرة
+                <Sparkles className="size-4" />
+              </div>
+            )}
           </div>
           <p className="text-sm text-white/80 mt-2">
             طريقة رائعة لتجربة قوة الدراسة المعززة بالذكاء الاصطناعي.
@@ -87,8 +136,13 @@ export default function BillingPlans() {
             <Feature>الحد الأقصى لحجم الملف: 50 ميجابايت</Feature>
             <Feature>حتى 50 صفحة/PDF</Feature>
           </div>
-          <Button className="mt-auto w-full rounded-lg cursor-pointer py-5">
-            اشترك الآن
+          <Button 
+            className="mt-auto w-full rounded-lg cursor-pointer py-5"
+            disabled={isProPlan || loading}
+            variant={isProPlan ? "secondary" : "default"}
+            onClick={isProPlan ? undefined : handleSubscribe}
+          >
+            {loading ? "جاري التحويل..." : isProPlan ? "الخطة الحالية" : "اشترك الآن"}
           </Button>
         </Card>
       </div>

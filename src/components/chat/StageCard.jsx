@@ -15,13 +15,13 @@ export default function StageCard({ title, stagesCount = 5, progress = 89, onOpe
   const bgClass = colorClasses[variant] || colorClasses.primary;
 
   return (
-    <Card className={`rounded-2xl p-6 ${bgClass} text-white space-y-5 ${className || ""}`} dir="rtl">
+    <Card className={`rounded-2xl p-6 ${bgClass} text-white space-y-5 mb-0 ${className || ""}`} dir="rtl">
       <div className="flex items-center justify-between">
         <div className="size-9 grid place-items-center rounded-full border border-white">
           <GitMerge className="size-5 text-white" />
         </div>
         <div className="flex-1 text-right ms-2">
-          <p className="text-lg font-semibold">{title}</p>
+          <p className="text-lg font-semibold truncate">{title}</p>
           <p className="text-sm font-light">عدد المراحل: {stagesCount}</p>
         </div>
         <div className="flex items-center gap-3">

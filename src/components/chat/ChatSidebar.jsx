@@ -57,12 +57,15 @@ function SidebarSection({ title, children }) {
   );
 }
 
-function SourceItem({ label, checked, onToggle, onDelete }) {
+function SourceItem({ label, checked, onToggle, onDelete, isDeleting }) {
   return (
-    <div className="w-full flex items-center justify-between gap-2 rounded-xl bg-card px-3 py-2 hover:bg-card/80 group">
+    <div className={`w-full flex items-center justify-between gap-2 rounded-xl bg-card px-3 py-2 hover:bg-card/80 group transition-all duration-300 ${
+      isDeleting ? 'opacity-50 pointer-events-none' : ''
+    }`}>
       <button
         onClick={onToggle}
         className="flex items-center justify-start gap-2 text-sm flex-1 min-w-0 cursor-pointer"
+        disabled={isDeleting}
       >
         <Checkbox
           checked={checked}
@@ -76,9 +79,14 @@ function SourceItem({ label, checked, onToggle, onDelete }) {
           e.stopPropagation();
           onDelete?.();
         }}
-        className="text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+        disabled={isDeleting}
+        className="text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
       >
-        <Trash2 className="size-4" />
+        {isDeleting ? (
+          <div className="size-4 border-2 border-muted-foreground border-t-transparent rounded-full animate-spin" />
+        ) : (
+          <Trash2 className="size-4" />
+        )}
       </button>
     </div>
   );
@@ -91,6 +99,7 @@ export default function ChatSidebar() {
   const toggleSelect = useFileStore((s) => s.toggleSelect);
   const isUploading = useFileStore((s) => s.isUploading);
   const folderId = useFileStore((s) => s.folderId);
+  const [deletingIds, setDeletingIds] = React.useState(new Set());
   console.log(selectedIds);
 
   const sources = React.useMemo(() => {
@@ -98,8 +107,9 @@ export default function ChatSidebar() {
       id: f.id,
       label: fixArabicFilename(f.name),
       checked: selectedIds.has ? selectedIds.has(f.id) : false,
+      isDeleting: deletingIds.has(f.id),
     }));
-  }, [files, selectedIds]);
+  }, [files, selectedIds, deletingIds]);
 
   const onToggleSource = (i) => {
     const id = sources[i]?.id;
@@ -109,6 +119,9 @@ export default function ChatSidebar() {
   const handleDelete = async (fileId) => {
     const folderId = useFileStore.getState().folderId;
     if (!folderId || !fileId) return;
+
+    // Add to deleting set
+    setDeletingIds(prev => new Set(prev).add(fileId));
 
     const toastId = toast.loading("جارٍ حذف الملف...");
     try {
@@ -120,9 +133,21 @@ export default function ChatSidebar() {
         } catch {}
       } else {
         toast.error(res?.error || "فشل حذف الملف", { id: toastId });
+        // Remove from deleting set on error
+        setDeletingIds(prev => {
+          const next = new Set(prev);
+          next.delete(fileId);
+          return next;
+        });
       }
     } catch {
       toast.error("حدث خطأ أثناء الحذف", { id: toastId });
+      // Remove from deleting set on error
+      setDeletingIds(prev => {
+        const next = new Set(prev);
+        next.delete(fileId);
+        return next;
+      });
     }
   };
 
@@ -256,6 +281,7 @@ export default function ChatSidebar() {
                 checked={s.checked}
                 onToggle={() => onToggleSource(i)}
                 onDelete={() => handleDelete(s.id)}
+                isDeleting={s.isDeleting}
               />
             ))}
             {isUploading && (

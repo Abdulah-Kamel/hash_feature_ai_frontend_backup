@@ -14,10 +14,12 @@ import {
 import { getFolders } from "@/server/actions/folders";
 import useAuth from "@/hooks/use-auth";
 import { Skeleton } from "@/components/ui/skeleton";
-import { uploadFiles } from "@/server/actions/files";
 import { useDropzone } from "react-dropzone";
 import { toast } from "sonner";
 import { useFileStore } from "@/store/fileStore";
+import { uploadFilesWithProgress, getFileInfo } from "@/lib/upload-utils";
+import UploadProgressDialog from "./UploadProgressDialog";
+import PostUploadOptionsDialog from "./PostUploadOptionsDialog";
 
 function UploadDialogTrigger({ children, onUploaded }) {
   const [dialogOpen, setDialogOpen] = React.useState(false);
@@ -29,6 +31,18 @@ function UploadDialogTrigger({ children, onUploaded }) {
   const [selectedFiles, setSelectedFiles] = React.useState([]);
   const [uploadBusy, setUploadBusy] = React.useState(false);
   const setIsUploading = useFileStore((s) => s.setIsUploading);
+  
+  // Progress dialog state
+  const [showProgress, setShowProgress] = React.useState(false);
+  const [uploadProgress, setUploadProgress] = React.useState(0);
+  const [uploadStatus, setUploadStatus] = React.useState("uploading");
+  const [currentFileName, setCurrentFileName] = React.useState("");
+  const [currentFileSize, setCurrentFileSize] = React.useState(0);
+  
+  // Options dialog state
+  const [showOptions, setShowOptions] = React.useState(false);
+  const [uploadedFolderId, setUploadedFolderId] = React.useState("");
+  const [uploadedFileIds, setUploadedFileIds] = React.useState([]);
 
   const loadFolders = React.useCallback(async () => {
     if (authLoading || !isAuthenticated) return;
@@ -77,7 +91,124 @@ function UploadDialogTrigger({ children, onUploaded }) {
   };
 
   const canSubmit = selectedFolderId && selectedFiles.length > 0 && !uploadBusy;
+  
+  const handleSubmit = async (e) => {
+              e.preventDefault();
+              if (!canSubmit) return;
+              
+              // Get first file info for display
+              const firstFile = selectedFiles[0];
+              if (firstFile) {
+                const fileInfo = getFileInfo(firstFile);
+                setCurrentFileName(fileInfo.name);
+                setCurrentFileSize(fileInfo.size);
+              }
+              
+              // Close upload dialog and show progress
+              setDialogOpen(false);
+              setShowProgress(true);
+              setUploadProgress(0);
+              setUploadStatus("uploading");
+              
+              // Start loading state
+              setUploadBusy(true);
+              setIsUploading(true);
+              
+              const fd = new FormData();
+              fd.append("folderId", selectedFolderId);
+              for (const f of selectedFiles) fd.append("files", f);
+              
+              try {
+                const res = await uploadFilesWithProgress(
+                  fd,
+                  (progress) => setUploadProgress(progress),
+                  (status) => setUploadStatus(status)
+                );
+                
+                console.log(res);
+                
+                if (!res?.success) {
+                  setShowProgress(false);
+                  toast.error(res?.error || "فشل رفع الملفات", {
+                    position: "top-right",
+                    duration: 3000,
+                  });
+                } else {
+                  // Show complete status briefly
+                  setUploadStatus("complete");
+                  setUploadProgress(100);
+                  
+                  // Extract file IDs from response
+                  // API returns: { results: { uploaded: [...], duplicates: [...], failed: [...] } }
+                  const uploadedFiles = res.data?.results?.uploaded || [];
+                  const duplicateFiles = res.data?.results?.duplicates || [];
+                  const failedFiles = res.data?.results?.failed || [];
+                  
+                  // Combine uploaded and duplicate file IDs
+                  const allFiles = [...uploadedFiles, ...duplicateFiles];
+                  const fileIds = allFiles.map(f => f._id || f.id).filter(Boolean);
+                  
+                  console.log("Uploaded file IDs:", fileIds);
+                  
+                  // Show appropriate message based on results
+                  const summary = res.data?.summary;
+                  if (summary) {
+                    if (summary.duplicates > 0 && summary.uploaded === 0) {
+                      toast.warning(`تم تجاهل ${summary.duplicates} ملف مكرر`, {
+                        position: "top-right",
+                        duration: 3000,
+                      });
+                    } else if (summary.duplicates > 0) {
+                      toast.warning(`تم رفع ${summary.uploaded} ملف، ${summary.duplicates} ملف مكرر`, {
+                        position: "top-right",
+                        duration: 3000,
+                      });
+                    } else {
+                      toast.success("تم رفع الملفات بنجاح", {
+                        position: "top-right",
+                        duration: 3000,
+                      });
+                    }
+                    
+                    if (summary.failed > 0) {
+                      toast.error(`فشل رفع ${summary.failed} ملف`, {
+                        position: "top-right",
+                        duration: 3000,
+                      });
+                    }
+                  }
+                  
+                  // Wait a moment then show options dialog
+                  setTimeout(() => {
+                    setShowProgress(false);
+                    setUploadedFolderId(res.folderId || selectedFolderId);
+                    setUploadedFileIds(fileIds);
+                    setShowOptions(true);
+                  }, 800);
+                  
+                  try {
+                    window.dispatchEvent(new Event("files:refresh"));
+                  } catch {}
+                  try {
+                    if (typeof onUploaded === "function") onUploaded(selectedFolderId);
+                  } catch {}
+                }
+              } catch (error) {
+                setShowProgress(false);
+                console.error("Upload error:", error);
+                toast.error(error.message || "حدث خطأ غير متوقع", {
+                  position: "top-right",
+                  duration: 3000,
+                });
+              }
+              
+              setUploadBusy(false);
+              setIsUploading(false);
+              setSelectedFiles([]);
+            };
+
   return (
+    <>
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="border-[#515355] bg-background rounded-2xl p-6">
@@ -135,54 +266,7 @@ function UploadDialogTrigger({ children, onUploaded }) {
             </DropdownMenu>
           </div>
           <form
-            onSubmit={async (e) => {
-              e.preventDefault();
-              if (!canSubmit) return;
-              
-              // Close dialog immediately
-              setDialogOpen(false);
-              
-              // Start loading state
-              setUploadBusy(true);
-              setIsUploading(true);
-              
-              const fd = new FormData();
-              fd.append("folderId", selectedFolderId);
-              for (const f of selectedFiles) fd.append("files", f);
-              
-              try {
-                const res = await uploadFiles(fd);
-                if (!res?.success) {
-                  toast.error(res?.error || "فشل رفع الملفات", {
-                    position: "top-right",
-                    duration: 3000,
-                    classNames: "toast-error mt-14",
-                  });
-                } else {
-                  toast.success("تم رفع الملفات بنجاح", {
-                    position: "top-right",
-                    duration: 3000,
-                    classNames: "toast-success mt-14",
-                  });
-                  try {
-                    window.dispatchEvent(new Event("files:refresh"));
-                  } catch {}
-                  try {
-                    if (typeof onUploaded === "function") onUploaded(selectedFolderId);
-                  } catch {}
-                }
-              } catch {
-                toast.error("حدث خطأ غير متوقع", {
-                  position: "top-right",
-                  duration: 3000,
-                  classNames: "toast-error mt-14",
-                });
-              }
-              
-              setUploadBusy(false);
-              setIsUploading(false);
-              setSelectedFiles([]);
-            }}
+            onSubmit={handleSubmit}
           >
             <input type="hidden" name="folderId" value={selectedFolderId} />
             
@@ -261,6 +345,24 @@ function UploadDialogTrigger({ children, onUploaded }) {
         </div>
       </DialogContent>
     </Dialog>
+    
+    {/* Upload Progress Dialog */}
+    <UploadProgressDialog
+      open={showProgress}
+      progress={uploadProgress}
+      fileName={currentFileName}
+      fileSize={currentFileSize}
+      status={uploadStatus}
+    />
+    
+    {/* Post-Upload Options Dialog */}
+    <PostUploadOptionsDialog
+      open={showOptions}
+      onOpenChange={setShowOptions}
+      folderId={uploadedFolderId}
+      fileIds={uploadedFileIds}
+    />
+  </>
   );
 }
 

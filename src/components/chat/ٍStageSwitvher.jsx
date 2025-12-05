@@ -96,6 +96,16 @@ export default function StageSwitcher({ shouldLoad = false, onModeChange }) {
     setHasLoaded(false);
   }, [folderId]);
 
+  // Update selected object when stages data changes
+  useEffect(() => {
+    if (selected && stages.length > 0) {
+      const updatedSelected = stages.find(s => s.id === selected.id);
+      if (updatedSelected && JSON.stringify(updatedSelected) !== JSON.stringify(selected)) {
+        setSelected(updatedSelected);
+      }
+    }
+  }, [stages, selected?.id]); // Only depend on selected.id to prevent infinite loop
+
   if (mode === "detail") {
     return (
       <StageDetail
@@ -149,7 +159,10 @@ export default function StageSwitcher({ shouldLoad = false, onModeChange }) {
   }
   
   if (mode === "mcq") {
-    const handleNextStage = () => {
+    const handleNextStage = async () => {
+      // Reload stages data to get updated status
+      await load();
+      
       // Get all stages from the selected item
       const allStages = selected?.data?.stages || [];
       const currentStageNumber = selectedStage?.stageNumber || 1;

@@ -115,9 +115,11 @@ export default function WorkspaceList() {
     const t = setTimeout(() => load(), 0);
     const fn = () => load();
     window.addEventListener("folders:refresh", fn);
+    window.addEventListener("files:refresh", fn); // Also refresh when files are uploaded
     return () => {
       clearTimeout(t);
       window.removeEventListener("folders:refresh", fn);
+      window.removeEventListener("files:refresh", fn);
     };
   }, [authLoading, isAuthenticated]);
 

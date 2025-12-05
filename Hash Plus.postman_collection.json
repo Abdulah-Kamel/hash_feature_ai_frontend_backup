@@ -1,0 +1,1720 @@
+{
+	"info": {
+		"_postman_id": "289b505c-9654-4827-af85-4674d2bdc646",
+		"name": "Hash Plus",
+		"description": "# 🌐 **Hash Plus API Documentation**\n\nWelcome to **Hash Plus API**, your gateway to a smarter and more entertaining learning experience.\n\nThis platform makes learning fun and interactive with AI-powered features, user authentication, and personal progress management.\n\n---\n\n## 🚀 **Getting Started Guide**\n\nTo start using the **Hash Plus APIs**, you need to follow these steps:\n\n1. **Register or Log in** using the `/auth/signup` or `/auth/login` endpoints.\n    \n2. **Get your JWT Access Token** – it’s required to access protected endpoints.\n    \n3. Authorization: Bearer\n    \n4. Use HTTPS for all requests.\n    \n5. All API responses are returned in **JSON** format.\n    \n6. Handle errors gracefully — error responses include `status`, `message`, and sometimes `details`.\n    \n\nExample Base URL (Local):\n\n```\nhttp://localhost:8080/api/v1\n\n ```\n\n## 🧩 **Error Handling**\n\nAll errors return JSON responses with consistent structure:\n\n```\n{\n  \"status\": \"error\",\n  \"message\": \"Resource not found\"\n}\n\n ```\n\nCommon error codes:\n\n| Code | Meaning |\n| --- | --- |\n| 400 | Bad Request |\n| 401 | Unauthorized |\n| 403 | Forbidden |\n| 404 | Not Found |\n| 429 | Too Many Requests |\n| 500 | Internal Server Error |\n\n---\n\n## 💬 **Need Help?**\n\nIf you need assistance:\n\n- 📘 Check our **API Tutorials** (link to documentation or YouTube)\n    \n- 💬 Join our **Community Forum** (link to Discord, GitHub Discussions, etc.)\n    \n- 🧑‍💻 Contact the developer: [Mohamed Baraka](https://null)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "44127010"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Signup",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if(pm.response.json().token)\r",
+									"{\r",
+									"    pm.environment.set(\"JWT\", pm.response.json().token);\r",
+									"\r",
+									"}\r",
+									"\r",
+									"if(pm.response.json().refreshToken)\r",
+									"{\r",
+									"    pm.environment.set(\"REFRESH\", pm.response.json().refreshToken);\r",
+									"}\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": " {\r\n    \"name\": \"user\",\r\n    \"phone\": \"01096339821\",\r\n    \"email\": \"barakamohamed9466@gmail.com\",\r\n    \"password\": \"barakamohamed9466\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/api/v1/auth/signup",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"signup"
+							]
+						},
+						"description": "Registers a new user on the **Hash Plus** platform.\n\nThis endpoint collects essential user details such as name, phone, email, and password, then creates a new account.\n\nUpon successful signup, the API returns a confirmation message and a JWT token, which the client can use for authentication in subsequent requests.\n\nStartFragment\n\n### **Request Body**\n\nSend a JSON object containing the following fields:\n\n| Field | Type | Required | Description |\n| --- | --- | --- | --- |\n| `name` | `string` | ✅ | The user's full name |\n| `phone` | `string` | ✅ | The user's phone number |\n| `email` | `string` | ✅ | A valid email address |\n| `password` | `string` | ✅ | Password (must meet minimum security rules) |\n\n### **Response**\n\n**✅ Success (201 Created)**\n\n```\n{\n  \"status\": \"success\",\n  \"message\": \"User registered successfully\",\n  \"data\": {\n    \"user\": {\n      \"_id\": \"6701234f2b1a8b21e9f3faaa\",\n      \"name\": \"baraka\",\n      \"email\": \"mhmdahmdbusiness@gmail.com\",\n      \"phone\": \"01096339822\"\n    },\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"\n  }\n}\n\n ```\n\n**❌ Error Responses**\n\n| Status Code | Description | Example |\n| --- | --- | --- |\n| `400` | Invalid input or missing field | `{ \"status\": \"error\", \"message\": \"Email is required\" }` |\n| `409` | Email already exists | `{ \"status\": \"error\", \"message\": \"User already exists\" }` |\n| `500` | Server error | `{ \"status\": \"error\", \"message\": \"Something went wrong\" }` |\n\n---\n\n### **Notes**\n\n- Passwords are securely hashed before being stored.\n    \n- A valid email is required — duplicate emails are not allowed.\n    \n- The returned JWT token must be stored securely (e.g., in `Authorization` header)."
+					},
+					"response": []
+				},
+				{
+					"name": "Log In",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if(pm.response.json().token)\r",
+									"{\r",
+									"    pm.environment.set(\"JWT\", pm.response.json().token);\r",
+									"\r",
+									"}\r",
+									"\r",
+									"if(pm.response.json().refreshToken)\r",
+									"{\r",
+									"    pm.environment.set(\"REFRESH\", pm.response.json().refreshToken);\r",
+									"}\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"jl@gmail.com\",\r\n    \"password\": \"mmrrAnas5188@\"\r\n    // \"email\": \"barakamohamed9466@gmail.com\",\r\n    // \"password\": \"barakamohamed9466\"\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/api/v1/auth/login",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"login"
+							]
+						},
+						"description": "StartFragment\n\nAuthenticates an existing **Hash Plus** user using their registered email and password.  \n  \nUpon successful login, the API issues a **JWT access token** that grants the user access to protected routes like profile management, folders, and AI features.\n\nIf credentials are invalid, an appropriate error message is returned.\n\n---\n\n### **Request Body**\n\nSend a JSON object containing the user's credentials:\n\n| Field | Type | Required | Description |\n| --- | --- | --- | --- |\n| `email` | `string` | ✅ | The registered email address |\n| `password` | `string` | ✅ | The user’s password |\n\n### **Response**\n\n**✅ Success (200 OK)**  \n  \nReturns user info and a JWT token to authenticate further API requests.\n\n```\n{\n  \"status\": \"success\",\n  \"message\": \"Logged in successfully\",\n  \"data\": {\n    \"user\": {\n      \"_id\": \"6701234f2b1a8b21e9f3faaa\",\n      \"name\": \"Mohamed Baraka\",\n      \"email\": \"barakamohamed946@gmail.com\",\n      \"phone\": \"01096339820\",\n      \"isActive\": true\n    },\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"\n  }\n}\n\n ```\n\n---\n\n**❌ Error Responses**\n\n| Status Code | Description | Example |\n| --- | --- | --- |\n| `400` | Missing required fields | `{ \"status\": \"error\", \"message\": \"Email and password are required\" }` |\n| `401` | Invalid credentials | `{ \"status\": \"error\", \"message\": \"Invalid email or password\" }` |\n| `403` | User deactivated or not verified | `{ \"status\": \"error\", \"message\": \"Account is inactive\" }` |\n| `500` | Internal server error | `{ \"status\": \"error\", \"message\": \"Something went wrong\" }` |\n\n---\n\n### **Notes**\n\n- A valid **JWT** is returned upon successful login.\n    \n- Authorization: Bearer\n    \n- Tokens may have an expiry time; use `/auth/refresh-token` to obtain a new one.\n    \n- If login fails multiple times, temporary rate limiting may apply."
+					},
+					"response": []
+				},
+				{
+					"name": "Log Out",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/api/v1/auth/logout",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"logout"
+							]
+						},
+						"description": "Logs out the currently authenticated user by invalidating their **JWT access token** (or clearing the authentication cookie, depending on implementation).  \n  \nThis ensures that the token can no longer be used to access protected resources like user profiles or folders.\n\nThe client should delete or remove the stored token after a successful logout.\n\n---\n\n### **Request Headers**\n\n| Header | Value | Required | Description |\n| --- | --- | --- | --- |\n| `Authorization` | `Bearer` | ✅ | The JWT token obtained from login |\n\n---\n\n### **Response**\n\n**✅ Success (200 OK)**\n\n```\n{\n  \"status\": \"success\",\n  \"message\": \"Logged out successfully\"\n}\n\n ```\n\n---\n\n**❌ Error Responses**\n\n| Status Code | Description | Example |\n| --- | --- | --- |\n| `401` | Missing or invalid token | `{ \"status\": \"error\", \"message\": \"Unauthorized - Invalid or expired token\" }` |\n| `500` | Internal server error | `{ \"status\": \"error\", \"message\": \"Something went wrong\" }` |\n\n---\n\n### **Notes**\n\n- Logging out does **not** delete the user’s account.\n    \n- The token must be included in the **Authorization** header to identify which user is logging out.\n    \n- After logout, users must log in again to get a new token.\n    \n- If you’re using **HTTP-only cookies** for tokens, the server will automatically clear them on logout."
+					},
+					"response": []
+				},
+				{
+					"name": "refresh token",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-refresh-token",
+								"value": "{{REFRESH}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/api/v1/auth/refresh-token",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"refresh-token"
+							]
+						},
+						"description": "Generates a new **JWT access token** using a valid **refresh token**.\n\nThis allows users to maintain an active session without having to log in again when the access token expires.\n\nThe refresh token is typically sent in the **request body** or as an **HTTP-only cookie** depending on your implementation.\n\n---\n\n### **Request Headers**\n\n```\nAuthorization: Bearer <refresh_token>\n\n ```\n\n### **Response**\n\n**✅ Success (200 OK)**\n\n```\n{\n  \"status\": \"success\",\n  \"message\": \"Access token refreshed successfully\",\n  \"data\": {\n    \"token\": \"new_jwt_access_token_here\"\n  }\n}\n\n ```\n\n---\n\n**❌ Error Responses**\n\n| Status Code | Description | Example |\n| --- | --- | --- |\n| `401` | Missing, invalid, or expired refresh token | `{ \"status\": \"error\", \"message\": \"Unauthorized - Invalid or expired refresh token\" }` |\n| `403` | Refresh token has been revoked | `{ \"status\": \"error\", \"message\": \"Forbidden - Refresh token revoked\" }` |\n| `500` | Internal server error | `{ \"status\": \"error\", \"message\": \"Something went wrong\" }` |\n\n---\n\n### **Notes**\n\n- Refresh tokens are **long-lived** compared to access tokens.\n    \n- Always store refresh tokens securely (e.g., HTTP-only cookies or secure storage).\n    \n- Using a refresh token automatically invalidates the previous access token if your backend implements token rotation.\n    \n- If the refresh token is invalid or expired, the user must log in again."
+					},
+					"response": []
+				},
+				{
+					"name": "forgot password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"barakamohamed946@gmail.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/api/v1/auth/forgot-password",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"forgot-password"
+							]
+						},
+						"description": "**Description:**\n\nSends a password reset code to the user’s registered email.\n\nUse this endpoint when a user forgets their password. The reset code will be required to verify the user before resetting the password.\n\n---\n\n### **Response**\n\n**✅ Success (200 OK)**\n\n```\n{\n  \"status\": \"success\",\n  \"message\": \"Reset code sent to your email\"\n}\n\n ```\n\n**❌ Error Responses**\n\n| Status Code | Description | Example |\n| --- | --- | --- |\n| 404 | Email not registered | `{ \"status\": \"error\", \"message\": \"User with this email does not exist\" }` |\n| 500 | Server error | `{ \"status\": \"error\", \"message\": \"Something went wrong\" }` |"
+					},
+					"response": []
+				},
+				{
+					"name": "verify reset code",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"resetCode\":\"470043\"\r\n}   ",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/api/v1/auth/verify-reset-code",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"verify-reset-code"
+							]
+						},
+						"description": "**Description:**  \n  \nVerifies the reset code sent to the user’s email.  \n  \nThis ensures that the user requesting the password reset owns the email account.\n\n---\n\n### **Request Body**\n\n```\n{\n  \"resetCode\": \"310639\"\n}\n\n ```\n\n---\n\n### **Response**\n\n**✅ Success (200 OK)**\n\n```\n{\n  \"status\": \"success\",\n  \"message\": \"Reset code verified successfully\"\n}\n\n ```\n\n**❌ Error Responses**\n\n| Status Code | Description | Example |\n| --- | --- | --- |\n| 400 | Invalid or expired code | `{ \"status\": \"error\", \"message\": \"Reset code is invalid or expired\" }` |\n| 404 | User not found | `{ \"status\": \"error\", \"message\": \"User not found\" }` |\n| 500 | Server error | `{ \"status\": \"error\", \"message\": \"Something went wrong\" }` |"
+					},
+					"response": []
+				},
+				{
+					"name": "reset password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if(pm.response.json().token)\r",
+									"{\r",
+									"    pm.environment.set(\"JWT\", pm.response.json().token);\r",
+									"\r",
+									"}\r",
+									"\r",
+									"if(pm.response.json().refreshToken)\r",
+									"{\r",
+									"    pm.environment.set(\"REFRESH\", pm.response.json().refreshToken);\r",
+									"}\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"barakamohamed946@gmail.com\",\r\n    \"newPassword\": \"barakamohamed946#\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/api/v1/auth/reset-password",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"reset-password"
+							]
+						},
+						"description": "**Description:**  \n  \nAllows the user to set a new password after verifying the reset code.  \n  \nOnce the password is reset, the user can log in with the new password.\n\n---\n\n### **Request Body**\n\n```\n{\n  \"newPassword\": \"MohamedBaraka0#\"\n}\n\n ```\n\n---\n\n### **Response**\n\n**✅ Success (200 OK)**\n\n```\n{\n  \"status\": \"success\",\n  \"message\": \"Password reset successfully\"\n}\n\n ```\n\n**❌ Error Responses**\n\n| Status Code | Description | Example |\n| --- | --- | --- |\n| 400 | Missing or weak password | `{ \"status\": \"error\", \"message\": \"New password does not meet security requirements\" }` |\n| 401 | Unauthorized (if reset code not verified) | `{ \"status\": \"error\", \"message\": \"Reset code not verified\" }` |\n| 500 | Server error | `{ \"status\": \"error\", \"message\": \"Something went wrong\" }` |\n\n---\n\n### **Notes**\n\n- The **reset code** is valid for a limited time (e.g., 10–15 minutes).\n    \n- Passwords are securely hashed before being stored.\n    \n- Users must **verify the reset code** before calling `/reset-password`.\n    \n- Encourage users to choose a strong password with uppercase, lowercase, numbers, and symbols."
+					},
+					"response": []
+				}
+			],
+			"description": "The **Hash Plus API** uses **JWT (JSON Web Tokens)** for authentication and authorization."
+		},
+		{
+			"name": "Profile",
+			"item": [
+				{
+					"name": "Get My Profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/api/v1/profiles",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"profiles"
+							]
+						},
+						"description": "Summary\nRetrieve the authenticated user's profile.\n\nMethod and URL\nGET {{URL}}/api/v1/profiles\n\nAuthentication\n- Requires Bearer JWT in the Authorization header.\n- Variable {{JWT}} should contain a valid token. Example header: Authorization: Bearer {{JWT}}.\n\nPath and Query Parameters\n- None. This endpoint returns the profile for the calling user based on the token.\n\nHeaders\n- Authorization: Bearer {{JWT}}\n- Accept: application/json (recommended)\n\nRequest Body\n- None.\n\nResponses\n- 200 OK: Returns the current user's profile object.\n  Example shape (may vary):\n  {\n    \"id\": \"string\",\n    \"email\": \"user@example.com\",\n    \"name\": \"string\",\n    \"roles\": [\"user\"],\n    \"createdAt\": \"2024-01-01T00:00:00.000Z\"\n  }\n- 401 Unauthorized: Missing or invalid token. Ensure {{JWT}} is set and not expired.\n- 403 Forbidden: Token valid but lacks permission to access the profile.\n- 5xx Server Error: Unexpected error on the server.\n\nNotes\n- This request uses environment variables {{URL}} and {{JWT}} from 'Dev Environment'.\n- To test different users, switch the {{JWT}} value in the active environment.\n- If the API supports pagination or expansion, add query parameters as needed.\n"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Profiles",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/api/v1/profiles/all",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"profiles",
+								"all"
+							]
+						},
+						"description": "Endpoint: GET {{URL}}/api/v1/profiles/all\n\nPurpose\n- Retrieve a paginated list of all user profiles.\n\nAuthentication\n- Type: Bearer token\n- Source: {{JWT}} (from active environment)\n- How to set: In the Dev Environment, set JWT to a valid access token. The request should use Authorization: Bearer {{JWT}} (inherit from folder/collection if configured).\n\nPath & Query Parameters\n- Path: /api/v1/profiles/all\n- Query params (optional):\n  - page: number (default 1) – page index to retrieve\n  - limit: number (default 20) – number of items per page\n  - search: string – free-text search across profile fields\n  - sortBy: string – field to sort by (e.g., createdAt, name)\n  - order: string – asc | desc (default desc)\n\nHeaders\n- Authorization: Bearer {{JWT}}\n- Accept: application/json\n\nSample Responses\n- 200 OK\n{\n  \"success\": true,\n  \"data\": [\n    { \"id\": \"p_123\", \"name\": \"Jane Doe\", \"email\": \"jane@example.com\" }\n  ],\n  \"page\": 1,\n  \"limit\": 20,\n  \"total\": 125\n}\n\n- 401 Unauthorized\n{\n  \"success\": false,\n  \"message\": \"Invalid or missing token\"\n}\n\n- 403 Forbidden\n{\n  \"success\": false,\n  \"message\": \"Insufficient permissions\"\n}\n\n- 500 Internal Server Error\n{\n  \"success\": false,\n  \"message\": \"Something went wrong\"\n}\n\nTest Ideas (Postman Tests)\n- Auth: Assert status 401 when JWT is empty/invalid; 200 when valid.\n- Schema: Validate data items contain id, name, email.\n- Pagination: When page=2&limit=5, assert length(data) <= 5 and page == 2.\n- Sorting: With sortBy=name&order=asc, assert data is sorted ascending by name.\n- Performance: Assert response time < 1000 ms.\n- Security: Ensure sensitive fields (e.g., password, tokens) are not present.\n\nNotes\n- This request uses variables from the Dev Environment: {{URL}} and {{JWT}}. Ensure that environment is selected before sending."
+					},
+					"response": []
+				},
+				{
+					"name": "Get My Profile Image",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/api/v1/profiles/profileImage",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"profiles",
+								"profileImage"
+							]
+						},
+						"description": "Retrieves the authenticated user's profile image.\n\nMethod: GET\nURL: {{URL}}/api/v1/profiles/profileImage\n\nAuthentication:\n- Requires a valid JWT. Ensure the {{JWT}} variable in the active environment contains a bearer token.\n- Send the header: Authorization: Bearer {{JWT}}\n\nHeaders:\n- Authorization: Bearer {{JWT}} (required)\n- Accept: image/* (optional, defaults to server's image content type)\n\nQuery Parameters:\n- None.\n\nRequest Body:\n- None.\n\nResponses:\n- 200 OK: Returns the user's profile image as a binary image stream. The Content-Type will reflect the stored image format (e.g., image/png, image/jpeg).\n- 401 Unauthorized: Missing or invalid token.\n- 404 Not Found: No profile image associated with the user.\n- 5xx: Server error.\n\nUsage Notes:\n- Use the Send and Download option in Postman to save the image locally.\n- To preview inline in Postman, check the Visualize or Image viewer when available based on the response content type.\n\nExample cURL:\n```\ncurl -X GET \"{{URL}}/api/v1/profiles/profileImage\" \\\n  -H \"Authorization: Bearer {{JWT}}\" \\\n  -H \"Accept: image/*\"\n```"
+					},
+					"response": []
+				},
+				{
+					"name": "Toggle Profile isActive",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/api/v1/profiles/isActive/69074f97652cd69d9083dc2b",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"profiles",
+								"isActive",
+								"69074f97652cd69d9083dc2b"
+							]
+						},
+						"description": "Overview\nToggle the 'isActive' state of a user profile.\n\nMethod and URL\nPATCH {{URL}}/api/v1/profiles/isActive/:profileId\n\nPath Parameters\n- profileId (string) — Unique identifier of the profile to toggle. Example: 69074f97652cd69d9083dc2b\n\nHeaders\n- Authorization: Bearer {{JWT}} (required)\n- Content-Type: application/json (no body is required)\n\nRequest Body\nThis endpoint does not require a request body.\n\nBehavior\n- Toggles the profile's isActive flag from true to false or false to true.\n- Returns the updated profile metadata.\n\nSuccess Response (200)\nExample\n{\n  \"success\": true,\n  \"message\": \"Profile activation status updated\",\n  \"data\": {\n    \"id\": \"69074f97652cd69d9083dc2b\",\n    \"isActive\": true,\n    \"updatedAt\": \"2025-01-01T12:00:00.000Z\"\n  }\n}\n\nPossible Errors\n- 400 Bad Request — Invalid profileId format.\n- 401 Unauthorized — Missing or invalid JWT token.\n- 403 Forbidden — Authenticated user not permitted to toggle this profile.\n- 404 Not Found — Profile not found.\n- 409 Conflict — Toggle not permitted due to current state or constraints.\n- 500 Internal Server Error — Unexpected error on server.\n\nNotes\n- Ensure {{URL}} and {{JWT}} are set in the active environment (Dev Environment).\n- If your API uses role-based access control, only privileged roles may perform this action.\n- Audit trails, if enabled, should record the previous and new values of isActive."
+					},
+					"response": []
+				},
+				{
+					"name": "Update My Profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Baraka\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/api/v1/profiles",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"profiles"
+							]
+						},
+						"description": "Overview\nUpdate the authenticated user profile.\n\nMethod & URL\nPATCH {{URL}}/api/v1/profiles\n\nAuthentication\nBearer JWT is required. Set the Authorization header to `Bearer {{JWT}}`.\n\nHeaders\n- Content-Type: application/json\n- Authorization: Bearer {{JWT}}\n\nRequest Body (JSON)\nSend only the fields you wish to update.\n\nSchema:\n{\n  \"name\": string,               // optional\n  \"country\": string             // optional\n}\n\nExample:\n{\n  \"name\": \"Baraka Updated bbb\"\n  // \"country\": \"Egypt\"\n}\n\nBehavior\n- Partial update: unspecified fields remain unchanged.\n- Server validates allowed fields; unknown fields are ignored or rejected based on server rules.\n\nResponses\n- 200 OK: Profile updated successfully. Returns the updated profile resource.\n- 400 Bad Request: Invalid payload (e.g., wrong types or disallowed fields).\n- 401 Unauthorized: Missing or invalid JWT.\n- 403 Forbidden: Authenticated but not permitted to update this profile.\n- 404 Not Found: Profile not found for the authenticated user.\n- 422 Unprocessable Entity: Validation failed (e.g., name length).\n- 500 Internal Server Error: Unexpected server error.\n\nSuccess Response Example (200):\n{\n  \"status\": \"success\",\n  \"data\": {\n    \"id\": \"<uuid>\",\n    \"name\": \"Baraka Updated bbb\",\n    \"country\": \"Egypt\",\n    \"updatedAt\": \"2025-01-15T10:20:30.000Z\"\n  }\n}\n\nError Response Example (401):\n{\n  \"status\": \"fail\",\n  \"message\": \"Unauthorized\"\n}\n\nNotes\n- Ensure {{URL}} and {{JWT}} are set in the active environment (Dev Environment).\n- Use this request as part of an authenticated user flow.\n- If you need deterministic tests, save an example after a successful run to use with mock servers."
+					},
+					"response": []
+				},
+				{
+					"name": "Update My Profile Image",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "profileImage",
+									"type": "file",
+									"src": "postman-cloud:///1eed2a33-2555-4760-83f1-ca5b2b1a8140"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{URL}}/api/v1/profiles/profileImage",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"profiles",
+								"profileImage"
+							]
+						},
+						"description": "Purpose\nUpload or replace the currently authenticated user’s profile image.\n\nMethod and URL\nPATCH {{URL}}/api/v1/profiles/profileImage\n\nAuthentication\n- Type: Bearer Token (JWT)\n- Source: {{JWT}} (from active environment)\n\nRequired Headers\n- Authorization: Bearer {{JWT}}\n- Content-Type: multipart/form-data (automatically set by Postman when using form-data body)\n\nBody (form-data)\n- image (file, required): The image file to upload as the profile picture. Supported types typically include JPG, PNG, or WEBP. Recommended max size per your server limits.\n\nNotes\n- This request must use body type: form-data.\n- Ensure the Authorization header is enabled and the JWT in the active environment is valid and unexpired.\n- Server may perform validation (file size, mime type). On failure, a 4xx response is returned with error details.\n\nSample Responses\n- 200 OK\n{\n  \"success\": true,\n  \"message\": \"Profile image updated successfully\",\n  \"data\": {\n    \"profileImageUrl\": \"https://cdn.example.com/users/123/profile.jpg\"\n  }\n}\n\n- 400 Bad Request (example)\n{\n  \"success\": false,\n  \"message\": \"Invalid file type. Allowed: jpg, png, webp\"\n}\n\n- 401 Unauthorized (example)\n{\n  \"success\": false,\n  \"message\": \"Invalid or expired token\"\n}\n\n- 413 Payload Too Large (example)\n{\n  \"success\": false,\n  \"message\": \"File size exceeds limit\"\n}\n\nTroubleshooting\n- If you see 401, refresh {{JWT}} in the environment.\n- If Content-Type is not multipart/form-data, switch body type to form-data and add the image file field.\n- Verify {{URL}} points to the correct environment (e.g., dev/staging/prod)."
+					},
+					"response": []
+				},
+				{
+					"name": "Change My Password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if(pm.response.json().token){pm.environment.set(\"JWT\", pm.response.json().token);}\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"currentPassword\":\"barakamohamed946#\",\r\n    \"newPassword\":\"barakamohamed946\",\r\n    \"confirmNewPassword\":\"barakamohamed946\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/api/v1/profiles/change-password",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"profiles",
+								"change-password"
+							]
+						},
+						"description": "Summary\nChange the authenticated user's password.\n\nPurpose\nAllows a logged-in user to update their account password by providing the current password and setting a new one.\n\nMethod and URL\nPATCH {{URL}}/api/v1/profiles/change-password\n\nAuthentication\nType: Bearer Token\nHeader: Authorization: Bearer {{JWT}}\nNotes: Ensure the Dev Environment has JWT set from a successful login or a previous response.\n\nRequest Body\nContent-Type: application/json\nSchema:\n- currentPassword: string - Required. The user's existing password.\n- newPassword: string - Required. The new password that meets your server's password policy (e.g., min length, complexity).\n- confirmNewPassword: string - Required. Must exactly match newPassword.\nValidation notes:\n- newPassword and confirmNewPassword must match.\n- Server may enforce minimum length and complexity requirements.\n- Current password must be correct.\nExample:\n{\n  \"currentPassword\": \"exampleCurrent#123\",\n  \"newPassword\": \"NewStronger#456\",\n  \"confirmNewPassword\": \"NewStronger#456\"\n}\n\nResponses\n200 OK\nDescription: Password changed successfully. Some implementations may return a refreshed JWT.\nExample:\n{\n  \"message\": \"Password updated\",\n  \"token\": \"<optional-new-jwt>\"\n}\n\n400 Bad Request\nDescription: Validation error (e.g., passwords don't match or do not meet policy).\nExample:\n{\n  \"error\": \"ValidationError\",\n  \"details\": [\n    \"confirmNewPassword must match newPassword\"\n  ]\n}\n\n401 Unauthorized\nDescription: Missing or invalid JWT.\nExample:\n{\n  \"error\": \"Unauthorized\"\n}\n\n403 Forbidden\nDescription: Current password incorrect or user not allowed to perform this action.\nExample:\n{\n  \"error\": \"Forbidden\",\n  \"message\": \"Current password is incorrect\"\n}\n\nPost-response behavior\nIf the response JSON contains token, the environment variable JWT is automatically updated via the existing test script.\n\nNotes\n- Use environment variable {{URL}} to target the desired server.\n- Keep your passwords secure; do not commit real credentials to version control.\n- Consider logging out other sessions after password change if supported by the backend."
+					},
+					"response": []
+				},
+				{
+					"name": "Remove My Profile Image",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{URL}}/api/v1/profiles/profileImage",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"profiles",
+								"profileImage"
+							]
+						},
+						"description": "Purpose\n- Permanently removes the authenticated user's profile image from their account.\n\nEndpoint\n- Method: DELETE\n- URL: `{{URL}}/api/v1/profiles/profileImage`\n\nAuthentication\n- Requires a valid JSON Web Token (JWT).\n- Include the token in the Authorization header as: `Authorization: Bearer {{JWT}}`.\n\nPath & Query Parameters\n- None.\n\nRequest Body\n- None.\n\nHeaders\n- Authorization: Bearer {{JWT}}\n- Content-Type is not required as there is no body.\n\nEnvironment Variables\n- `{{URL}}` should point to your API base URL in the active environment (e.g., Dev Environment).\n- `{{JWT}}` should contain a valid access token for the signed-in user.\n\nResponses\n- 200 OK: Profile image removed successfully. The response may include a message or the updated profile resource.\n- 204 No Content: Profile image removed successfully with no response body.\n- 401 Unauthorized: Missing/invalid token. Ensure `{{JWT}}` is set and not expired.\n- 403 Forbidden: Authenticated but not allowed to modify this profile image.\n- 404 Not Found: No profile image exists to remove.\n- 429 Too Many Requests: Rate limit exceeded. Retry after the indicated time.\n- 5xx Server Error: Unexpected server error.\n\nNotes\n- This action is irreversible; you will need to upload a new image to restore one.\n- Ensure the active environment (e.g., Dev Environment) defines `URL` and `JWT` variables.\n- Typical workflow: upload image -> verify -> delete (this request).\n"
+					},
+					"response": []
+				},
+				{
+					"name": "Remove My Profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{URL}}/api/v1/profiles",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"profiles"
+							]
+						},
+						"description": "Endpoint: DELETE {{URL}}/api/v1/profiles\n\nSummary\n- Permanently removes the authenticated user's profile. This action is irreversible.\n\nAuthorization\n- Requires a valid JWT access token.\n- Send the token in the Authorization header as: Bearer {{JWT}}.\n\nRequest\n- Method: DELETE\n- URL: {{URL}}/api/v1/profiles\n- Body: None\n\nExpected Responses\n- 200 OK: Profile successfully removed. Response may include a confirmation message or the deleted resource metadata.\n- 204 No Content: Profile removed, no response body.\n- 401 Unauthorized: Missing or invalid token.\n- 403 Forbidden: Token valid but not permitted to delete this profile.\n- 404 Not Found: Profile does not exist.\n\nHeaders\n- Authorization: Bearer {{JWT}}\n- Content-Type: application/json (optional; no body is required).\n\nNotes\n- This operation typically soft-deletes or hard-deletes based on server implementation. Confirm retention policies before using in production.\n- This request has no pre-request or test scripts currently.\n\nUsage\n1) Ensure the 'Dev Environment' is active and variables URL and JWT are set.\n2) Click Send. Verify the status code and server message.\n\nSafety\n- Use with caution in non-production environments first. Consider backing up user data if applicable."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Folders",
+			"item": [
+				{
+					"name": "Get All Folders",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{localURL}}/api/v1/folders",
+							"host": [
+								"{{localURL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"folders"
+							]
+						},
+						"description": "Summary\nRetrieves a paginated list of folders.\n\nEndpoint\nGET {{URL}}/api/v1/folders\n\nAuthentication\nThis endpoint requires a valid JWT. Include the token in the Authorization header using the Bearer scheme.\nAuthorization: Bearer {{JWT}}\n\nHeaders\n- Authorization: Bearer {{JWT}}\n- Content-Type: application/json (optional)\n\nQuery Parameters (optional)\n- page: number — Page index starting from 1\n- limit: number — Page size (e.g., 10, 20, 50)\n- search: string — Filter folders by name or keyword\n- sortBy: string — Field to sort by (e.g., name, createdAt)\n- order: string — asc or desc\n\nResponses\n- 200 OK — Returns an array of folder objects and pagination metadata.\n  Example shape:\n  {\n    \"data\": [\n      { \"id\": string, \"name\": string, \"createdAt\": string, \"updatedAt\": string }\n    ],\n    \"pagination\": { \"page\": number, \"limit\": number, \"total\": number }\n  }\n- 401 Unauthorized — Missing or invalid JWT.\n- 403 Forbidden — Authenticated but not allowed to access folders.\n- 500 Internal Server Error — Unexpected server error.\n\nNotes\n- Ensure the Dev Environment provides values for URL and JWT.\n- Do not include a request body for this GET request."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Folder",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"الذكاء الصناعي\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/api/v1/folders",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"folders"
+							]
+						},
+						"description": "Purpose\nCreates a new folder resource in the API.\n\nHTTP\n- Method: POST\n- URL: {{URL}}/api/v1/folders\n\nAuth\n- Uses bearer JWT. Ensure the environment variable {{JWT}} is set. Example header: Authorization: Bearer {{JWT}}.\n\nRequest Body\n- Type: application/json (raw)\n- Example:\n  {\n    \"name\": \"Folder 1\"\n  }\n- Fields:\n  - name (string, required): Human-readable name for the folder. Must be unique within the parent scope if the API enforces uniqueness.\n\nResponses\n- 201 Created: Folder successfully created. Response typically includes the created folder object (id, name, timestamps).\n- 400 Bad Request: Validation failed (e.g., missing or invalid name).\n- 401 Unauthorized: Missing/invalid JWT.\n- 409 Conflict: A folder with the same name may already exist (if enforced).\n\nEnvironment Variables\n- {{URL}}: Base URL for the API (set in Dev Environment).\n- {{JWT}}: Bearer token for authentication.\n\nUsage Notes\n- Make sure the Authorization header is present and {{JWT}} is valid.\n- If the API supports additional properties (e.g., parentId), include them in the JSON body as needed.\n\nTesting Tips\n- Add tests to assert status code 201 and that response body contains an id and the provided name.\n- Consider saving the returned id to an environment variable for use in subsequent requests (e.g., update or delete folder).\n\nChange Log\n- 2025-11-20: Initial documentation added."
+					},
+					"response": []
+				},
+				{
+					"name": "Get One Folder By Id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/api/v1/folders/6925e49d9df571d9f28d096e",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"folders",
+								"6925e49d9df571d9f28d096e"
+							]
+						},
+						"description": "Purpose\nRetrieve a single folder resource by its unique identifier.\n\nEndpoint\nGET {{URL}}/api/v1/folders/:id\n\nAuthentication\nBearer token required via Authorization header.\n- Header: Authorization: Bearer {{JWT}}\n\nPath Parameters\n- id (string, required): The folder's unique identifier. Example: 69179ab59b0f5b7006bdf6d2\n\nHeaders\n- Authorization: Bearer {{JWT}}\n- Accept: application/json\n\nQuery Parameters\nNone.\n\nRequest Body\nNone.\n\nResponse\n- 200 OK: Returns the folder object.\n- 401 Unauthorized: Missing or invalid token.\n- 404 Not Found: Folder with the specified id does not exist.\n\nSample cURL\ncurl -s -X GET \"${URL}/api/v1/folders/69179ab59b0f5b7006bdf6d2\" \\\n  -H \"Authorization: Bearer ${JWT}\" \\\n  -H \"Accept: application/json\"\n\nSuccess Response Example (200)\n{\n  \"id\": \"69179ab59b0f5b7006bdf6d2\",\n  \"name\": \"<folder name>\",\n  \"createdAt\": \"2024-01-01T12:34:56.000Z\",\n  \"updatedAt\": \"2024-01-02T08:30:00.000Z\"\n}\n\nError Response Example (404)\n{\n  \"status\": 404,\n  \"error\": \"Not Found\",\n  \"message\": \"Folder not found\"\n}\n\nNotes\n- Ensure the active environment provides values for URL and JWT.\n- Replace the hard-coded id in the path with your target folder id when using this endpoint."
+					},
+					"response": []
+				},
+				{
+					"name": "Update One Folder By Id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Folder 1 Updated\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/api/v1/folders/6922031bc856cb1a57520faf",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"folders",
+								"6922031bc856cb1a57520faf"
+							]
+						},
+						"description": "### Update One Folder By Id\n\nUpdates an existing folder resource by its unique identifier. Use this endpoint to change folder attributes such as its name.\n\n- Method: PATCH\n- Base URL: `{{URL}}`\n- Endpoint: `/api/v1/folders/:id`\n\n#### Authorization\n- Type: Bearer Token (JWT)\n- Header: `Authorization: Bearer {{JWT}}`\n\n#### Path Parameters\n- `id` (string, required): The unique identifier of the folder to update. Example: `690cf85e3b031af932e8cf38`.\n\n#### Headers\n- `Content-Type: application/json`\n- `Accept: application/json`\n\n#### Request Body\n- Content-Type: `application/json`\n- Schema:\n  ```json\n  {\n    \"name\": \"string (1-255 chars)\"\n  }\n  ```\n- Example:\n  ```json\n  {\n    \"name\": \"Folder 1 Updated\"\n  }\n  ```\n\nPartial updates are supported. Only include fields you want to change.\n\n#### Responses\n- 200 OK: Folder updated successfully. Returns the updated resource.\n- 400 Bad Request: Validation error in payload.\n- 401 Unauthorized: Missing or invalid bearer token.\n- 403 Forbidden: Insufficient permissions.\n- 404 Not Found: Folder with the given id does not exist.\n- 409 Conflict: Update conflicts with existing resource constraints.\n- 422 Unprocessable Entity: Semantic validation failed.\n- 500 Internal Server Error: Unexpected server error.\n\n#### Example cURL\n```bash\ncurl -X PATCH \"{{URL}}/api/v1/folders/690cf85e3b031af932e8cf38\" \\\n  -H \"Authorization: Bearer {{JWT}}\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"name\":\"Folder 1 Updated\"}'\n```\n\n#### Notes\n- Ensure the JWT variable (`{{JWT}}`) is set in the active environment.\n- If this request is part of a workflow, confirm that folder creation has already occurred and the `id` is valid.\n- Consider adding tests to validate status code 200, response time, and that the response body reflects the updated name.\n"
+					},
+					"response": []
+				},
+				{
+					"name": "Remove One Folder By Id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{URL}}/api/v1/folders/6925e2cdad1fbe21c4163351",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"folders",
+								"6925e2cdad1fbe21c4163351"
+							]
+						},
+						"description": "Summary\nDeletes a single folder by its unique ID.\n\nHTTP\n- Method: DELETE\n- URL: {{URL}}/api/v1/folders/:id\n\nPath Parameters\n- id (string, required): The unique identifier of the folder to delete. Example: 690cf85e3b031af932e8cf38\n\nAuthentication\n- Type: Bearer token (JWT)\n- Header: Authorization: Bearer {{JWT}}\n\nHeaders\n- Authorization: Bearer {{JWT}} (required)\n- Content-Type: application/json (optional; not required for DELETE without body)\n\nRequest Body\n- None. This endpoint does not accept a body.\n\nResponses\n- 200 OK: Folder deleted successfully. Returns a confirmation object or message.\n- 204 No Content: Folder deleted successfully with no response body.\n- 400 Bad Request: Invalid folder ID format.\n- 401 Unauthorized: Missing or invalid JWT.\n- 403 Forbidden: Authenticated but not allowed to delete this folder.\n- 404 Not Found: Folder with the given ID does not exist.\n- 409 Conflict: Cannot delete due to existing constraints or dependencies.\n- 500 Internal Server Error: Unexpected server error.\n\nError Model (example)\n{\n  \"status\": false,\n  \"message\": \"Folder not found\"\n}\n\nExamples\nCurl\n```\ncurl -X DELETE \\ \n  \"${URL}/api/v1/folders/690cf85e3b031af932e8cf38\" \\\n  -H \"Authorization: Bearer ${JWT}\"\n```\n\nNotes\n- Ensure {{URL}} and {{JWT}} are set in the active environment (Dev Environment).\n- This request has no pre-request or test scripts and no saved examples. Add tests if you need to assert response codes or payloads in a collection run."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users / Folders / Files",
+			"item": [
+				{
+					"name": "Get All Folders For Specific User",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{localURL}}/api/v1/profiles/692f718348c6ce02a246de13/folders",
+							"host": [
+								"{{localURL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"profiles",
+								"692f718348c6ce02a246de13",
+								"folders"
+							]
+						},
+						"description": "Summary\nRetrieve all folders that belong to a specific user profile.\n\nEndpoint\nGET {{URL}}/api/v1/profiles/:profileId/folders\n\nPath Params\n- profileId (string, required): The user profile identifier. Example: 691722c2c9368b7f93d4bcde\n\nHeaders\n- Authorization: Bearer {{JWT}} (required)\n- Accept: application/json\n\nQuery Params\n- None by default. If your API supports pagination or filtering (e.g., page, limit, search), add them as needed.\n\nDescription\nReturns the list of folder resources associated with the specified user profile. Use the active Dev Environment to resolve {{URL}} and {{JWT}}.\n\nSuccess Response\n- Status: 200 OK\n- Body (example shape):\n  {\n    \"status\": \"success\",\n    \"data\": {\n      \"folders\": [\n        {\n          \"id\": \"string\",\n          \"name\": \"string\",\n          \"description\": \"string\",\n          \"createdAt\": \"ISO-8601 timestamp\",\n          \"updatedAt\": \"ISO-8601 timestamp\"\n        }\n      ],\n      \"count\": number\n    }\n  }\n\nError Responses\n- 400 Bad Request: Invalid profileId format.\n- 401 Unauthorized: Missing or invalid JWT token. Ensure Authorization header is set to \"Bearer {{JWT}}\".\n- 403 Forbidden: Authenticated but not allowed to access this user’s folders.\n- 404 Not Found: Profile not found.\n- 5xx Server Error: Unexpected server error.\n\nUsage Notes\n- Ensure Dev Environment variables are set: URL, JWT.\n- You can parameterize profileId by turning it into a path variable if desired.\n- Add tests to assert status is 200 and response has an array of folders.\n\nChangelog\n- Initial documentation added by Agent Mode."
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Files For Specific User",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/api/v1/profiles/files",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"profiles",
+								"files"
+							]
+						},
+						"description": "Summary\nRetrieve all folders that belong to a specific user profile.\n\nEndpoint\nGET {{URL}}/api/v1/profiles/:profileId/folders\n\nPath Params\n- profileId (string, required): The user profile identifier. Example: 691722c2c9368b7f93d4bcde\n\nHeaders\n- Authorization: Bearer {{JWT}} (required)\n- Accept: application/json\n\nQuery Params\n- None by default. If your API supports pagination or filtering (e.g., page, limit, search), add them as needed.\n\nDescription\nReturns the list of folder resources associated with the specified user profile. Use the active Dev Environment to resolve {{URL}} and {{JWT}}.\n\nSuccess Response\n- Status: 200 OK\n- Body (example shape):\n  {\n    \"status\": \"success\",\n    \"data\": {\n      \"folders\": [\n        {\n          \"id\": \"string\",\n          \"name\": \"string\",\n          \"description\": \"string\",\n          \"createdAt\": \"ISO-8601 timestamp\",\n          \"updatedAt\": \"ISO-8601 timestamp\"\n        }\n      ],\n      \"count\": number\n    }\n  }\n\nError Responses\n- 400 Bad Request: Invalid profileId format.\n- 401 Unauthorized: Missing or invalid JWT token. Ensure Authorization header is set to \"Bearer {{JWT}}\".\n- 403 Forbidden: Authenticated but not allowed to access this user’s folders.\n- 404 Not Found: Profile not found.\n- 5xx Server Error: Unexpected server error.\n\nUsage Notes\n- Ensure Dev Environment variables are set: URL, JWT.\n- You can parameterize profileId by turning it into a path variable if desired.\n- Add tests to assert status is 200 and response has an array of folders.\n\nChangelog\n- Initial documentation added by Agent Mode."
+					},
+					"response": []
+				},
+				{
+					"name": "Get One Folder For Specific User",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/api/v1/profiles/690db006cb93c7cf7be03722/folders/690db0b2cb93c7cf7be0372b",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"profiles",
+								"690db006cb93c7cf7be03722",
+								"folders",
+								"690db0b2cb93c7cf7be0372b"
+							]
+						},
+						"description": "Summary\nRetrieve a single folder that belongs to a specific user.\n\nEndpoint\nGET {{URL}}/api/v1/profiles/:profileId/folders/:folderId\n\nPath variables\n- profileId (string) – ID of the user profile whose folder you want to fetch.\n- folderId (string) – ID of the folder to retrieve.\n\nAuth\n- Requires a valid JWT provided via the Authorization header: Bearer {{JWT}}.\n\nQuery params\n- None.\n\nRequest body\n- None.\n\nExpected responses\n- 200 OK – Returns the folder object for the given user.\n- 401 Unauthorized – Missing or invalid JWT.\n- 403 Forbidden – Authenticated but not permitted to access this resource.\n- 404 Not Found – Folder or profile not found.\n\nNotes\n- Make sure the active environment defines URL and JWT variables.\n- This request currently has no pre-request or test scripts. Add tests to validate status code, schema, and authorization as needed."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete One Folder For Specific User",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Folder 2 Updated\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/api/v1/profiles/690db006cb93c7cf7be03722/folders/690db21efa3150595e1c111b",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"profiles",
+								"690db006cb93c7cf7be03722",
+								"folders",
+								"690db21efa3150595e1c111b"
+							]
+						},
+						"description": "Purpose\nDeletes a specific folder belonging to a specific user profile.\n\nMethod and URL\nDELETE {{URL}}/api/v1/profiles/:profileId/folders/:folderId\n\n- {{URL}} comes from the active environment (e.g., https://api.example.com)\n- Replace path variables with actual IDs when sending the request.\n\nAuthentication\n- Bearer JWT required.\n- Store your token in the environment variable {{JWT}}.\n\nRequired Headers\n- Authorization: Bearer {{JWT}}\n- Content-Type: application/json (not strictly required for DELETE, but commonly present)\n\nPath Parameters\n- profileId (string): The user profile identifier whose folder you want to delete. Example: 690db006cb93c7cf7be03722\n- folderId (string): The folder identifier to delete. Example: 690db21efa3150595e1c111b\n\nRequest Body\n- Typically ignored by servers for DELETE; this request currently has a raw JSON body present in the tab, but most APIs do not process bodies for DELETE. You may safely leave it empty unless the API explicitly supports it.\n\nPossible Responses\n- 204 No Content: Folder successfully deleted; response body is empty.\n- 200 OK: Folder deleted; server returns a confirmation payload.\n  Example:\n  {\n    \"message\": \"Folder deleted\",\n    \"folderId\": \"690db21efa3150595e1c111b\",\n    \"profileId\": \"690db006cb93c7cf7be03722\"\n  }\n- 400 Bad Request: Invalid IDs or malformed request.\n  Example:\n  {\n    \"error\": \"Invalid folderId\"\n  }\n- 401 Unauthorized: Missing/invalid token.\n  Example:\n  {\n    \"error\": \"Unauthorized\"\n  }\n- 403 Forbidden: Authenticated but not allowed to delete this folder.\n  Example:\n  {\n    \"error\": \"Forbidden\"\n  }\n- 404 Not Found: Profile or folder not found.\n  Example:\n  {\n    \"error\": \"Folder not found\"\n  }\n- 409 Conflict: Folder cannot be deleted due to conflicts (e.g., non-empty, in use).\n  Example:\n  {\n    \"error\": \"Folder has dependent resources\"\n  }\n- 500 Internal Server Error: Unexpected server error.\n\nUsage Notes\n- Ensure the Authorization header is set to Bearer {{JWT}}.\n- Confirm that the profileId and folderId exist and that your token has permission.\n\nExamples\n\ncURL\ncurl --request DELETE \\\n  --url \"{{URL}}/api/v1/profiles/690db006cb93c7cf7be03722/folders/690db21efa3150595e1c111b\" \\\n  --header \"Authorization: Bearer {{JWT}}\" \\\n  --header \"Content-Type: application/json\"\n\nPostman Test Snippet (Tests tab)\n// Expect 2xx deletion success\npm.test(\"Status is 2xx\", function () {\n  pm.expect(pm.response.code).to.be.within(200, 204);\n});\n\nFolder/Collection Context\n- Collection: Hash Plus\n- Folder: (as shown in UI for this request)\n- Request name: Delete One Folder For Specific User"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Folders / Files",
+			"item": [
+				{
+					"name": "Get files in folder by folderId",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/api/v1/folders/692f722d48c6ce02a246de22/files",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"folders",
+								"692f722d48c6ce02a246de22",
+								"files"
+							]
+						},
+						"description": "Purpose\nRetrieve the list of files contained in a specific folder, identified by its folderId.\n\nRequest\n- Method: GET\n- URL: {{URL}}/api/v1/folders/:folderId/files\n\nPath Variables\n- folderId (required): The unique identifier of the folder whose files you want to fetch. Example: 69179ab59b0f5b7006bdf6d2\n\nAuthentication\n- Type: Bearer Token (JWT)\n- Provide a valid JWT via the environment variable {{JWT}}\n- Header example: Authorization: Bearer {{JWT}}\n\nQuery Parameters\n- none\n\nHeaders\n- Authorization: Bearer {{JWT}}\n- Accept: application/json\n\nResponses\n- 200 OK: Returns an array of file objects in JSON format.\n  Example shape:\n  [\n    {\n      \"id\": \"string\",\n      \"name\": \"string\",\n      \"size\": number,\n      \"mimeType\": \"string\",\n      \"createdAt\": \"ISO-8601 timestamp\",\n      \"updatedAt\": \"ISO-8601 timestamp\"\n    }\n  ]\n\n- 401 Unauthorized: JWT is missing, expired, or invalid.\n- 403 Forbidden: Authenticated but not permitted to access this folder.\n- 404 Not Found: folderId does not exist.\n- 500 Internal Server Error: Unexpected server error.\n\nUsage Tips\n- Ensure the Dev Environment defines both URL and JWT variables.\n- If calling this request as part of a workflow, you can store folderId in an environment variable and reference it in the path.\n\nNotes\n- This endpoint does not require a request body.\n- Saved examples can be added later to power a mock server and better onboarding."
+					},
+					"response": []
+				},
+				{
+					"name": "Add Files into one Folder",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "files",
+									"type": "file",
+									"src": "postman-cloud:///1f0bcd59-49c6-49e0-9c22-72c9a52d01a9",
+									"disabled": true
+								},
+								{
+									"key": "files",
+									"type": "file",
+									"src": "postman-cloud:///1f0bd5a2-1eb7-4230-b5a8-c16ba9ae4815",
+									"disabled": true
+								},
+								{
+									"key": "files",
+									"type": "file",
+									"src": "postman-cloud:///1f0bd5a2-6fe9-4450-b873-bcb1844d6ba5",
+									"disabled": true
+								},
+								{
+									"key": "files",
+									"type": "file",
+									"src": "postman-cloud:///1f0c21a7-8f86-4b90-ae41-6a2426c2c068",
+									"disabled": true
+								},
+								{
+									"key": "files",
+									"type": "file",
+									"src": "/C:/Brkv/Books/مقدمات قصيرة جدا (هنداوي)/النظرية_النقدية.pdf",
+									"disabled": true
+								},
+								{
+									"key": "files",
+									"type": "file",
+									"src": "/C:/Users/compumarts/Desktop/مبادرة هاش بلس.pdf"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{localURL}}/api/v1/folders/69300df0b99a3df61247afab/files",
+							"host": [
+								"{{localURL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"folders",
+								"69300df0b99a3df61247afab",
+								"files"
+							]
+						},
+						"description": "Endpoint: POST {{URL}}/api/v1/folders/691a1ab69249d1274f542cea/files\n\nSummary\n- Upload one or more files into an existing folder.\n\nAuthorization\n- Typically requires a Bearer token in the Authorization header.\n- Uses environment variable {{JWT}}. Example:\n  Authorization: Bearer {{JWT}}\n\nRequest\n- Method: POST\n- URL: {{URL}}/api/v1/folders/{folderId}/files\n  - In this request, folderId is 691a1ab69249d1274f542cea.\n- Body: multipart/form-data\n  - Key: files (type: File) — can be repeated to upload multiple files.\n\nPath Parameters\n- folderId (string, required): Target folder ID to receive the upload.\n\nForm Data\n- files (file, required): One or more file parts to upload. Send multiple parts with the same key to upload multiple files.\n\nVariables\n- {{URL}}: Base URL for the API (from active environment).\n- {{JWT}}: JSON Web Token for authentication (from active environment).\n\nResponses\n- 201 Created: Files successfully uploaded. Response may include metadata of uploaded files.\n- 400 Bad Request: Invalid form-data or missing files field.\n- 401 Unauthorized: Missing or invalid JWT.\n- 404 Not Found: Folder ID does not exist.\n- 413 Payload Too Large: File size exceeds server limits.\n\nUsage Notes\n- Ensure the request body uses multipart/form-data.\n- Add one or more files under the form-data key `files`.\n- If the API supports it, additional metadata fields (e.g., filename, tags) can be included alongside the files parts.\n- Verify that the active environment provides valid values for {{URL}} and {{JWT}} before sending.\n\nTesting Tips\n- Try uploading a small text file first to validate the flow.\n- Test multiple uploads by adding multiple `files` rows.\n- Add tests to assert 201 status and verify response structure once the API contract is known."
+					},
+					"response": []
+				},
+				{
+					"name": "Remove Files From one Folder By File Hashes",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"fileIds\": [\r\n        \"69300ea2b99a3df61247afb8\"\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{localURL}}/api/v1/folders/69300df0b99a3df61247afab/files",
+							"host": [
+								"{{localURL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"folders",
+								"69300df0b99a3df61247afab",
+								"files"
+							]
+						},
+						"description": "Purpose\nDeletes one or more files from a specific folder by their file IDs (hashes). Use this to bulk-remove files that are already known by ID from a given folder.\n\nMethod and URL\n- Method: DELETE\n- URL pattern: {{URL}}/api/v1/folders/{folderId}/files\n- Concrete URL in this request: {{URL}}/api/v1/folders/69172304c9368b7f93d4bce5/files\n\nVariables and Environment\n- {{URL}}: Base API URL provided by the active environment (Dev Environment).\n- {{JWT}}: Bearer token used for authorization. Make sure it is set in the environment before sending the request.\n\nRequired Headers\n- Authorization: Bearer {{JWT}}\n- Content-Type: application/json\n\nRequest Body\n- Content-Type: application/json\n- Schema:\n  {\n    \"fileIds\": [\n      \"string\" // one or more file IDs (hashes) to remove from the folder\n    ]\n  }\n- Example body (as currently configured):\n  {\n    \"fileIds\": [\"69176ce9cf54156fb206e2dd\"]\n  }\n\nParameters\n- Path parameter:\n  - folderId (string, required): The target folder identifier. Example: 69172304c9368b7f93d4bce5\n- Body parameter:\n  - fileIds (array<string>, required): List of file IDs to delete from the folder. Must contain at least one ID.\n\nBehavior and Idempotency\n- The operation attempts to remove each provided fileId from the specified folder. If a fileId is not present in the folder, the service may ignore it or return an error depending on server implementation.\n\nResponses\n- 200 OK: Files removed successfully. The response may include details of removed and/or skipped items.\n  Example:\n  {\n    \"removed\": [\"69176ce9cf54156fb206e2dd\"],\n    \"skipped\": []\n  }\n- 202 Accepted: Removal is being processed asynchronously (if supported by server).\n  Example:\n  {\n    \"jobId\": \"b3c1a1...\",\n    \"status\": \"queued\"\n  }\n- 204 No Content: Files removed successfully with no response body.\n- 400 Bad Request: Invalid request body or missing fileIds.\n  Example:\n  {\n    \"error\": \"fileIds must be a non-empty array\"\n  }\n- 401 Unauthorized: Missing or invalid JWT.\n  Example:\n  {\n    \"error\": \"Unauthorized\"\n  }\n- 403 Forbidden: Authenticated but not allowed to remove files from this folder.\n  Example:\n  {\n    \"error\": \"Forbidden\"\n  }\n- 404 Not Found: Folder not found, or one or more fileIds do not exist.\n  Example:\n  {\n    \"error\": \"Folder 69172304c9368b7f93d4bce5 not found\"\n  }\n- 409 Conflict: One or more files cannot be removed due to state conflict (e.g., locked or in use).\n  Example:\n  {\n    \"error\": \"File 69176ce9cf54156fb206e2dd is locked\"\n  }\n- 422 Unprocessable Entity: Validation errors for provided IDs.\n  Example:\n  {\n    \"error\": \"Invalid file ID format\"\n  }\n- 500 Internal Server Error: Unexpected server error.\n  Example:\n  {\n    \"error\": \"Internal Server Error\"\n  }\n\nUsage Notes\n- Ensure {{JWT}} in the active environment is valid before sending.\n- Keep method, URL, and body exactly as configured unless you intend to target a different folderId or set of fileIds.\n- To remove multiple files, include all their IDs in the fileIds array."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "AI",
+			"item": [
+				{
+					"name": "Generate Stages",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"Stage 8\",\r\n    \"folderId\": \"6925e49d9df571d9f28d096e\",\r\n    \"fileIds\": [\r\n        \"6928863e97d5bb3bfa8c2e6a\"\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{localURL}}/api/v1/ai/stages",
+							"host": [
+								"{{localURL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"ai",
+								"stages"
+							]
+						},
+						"description": "Overview\nCreates a new AI Stage resource.\n\nEndpoint\nPOST {{URL}}/api/v1/ai/stages\n\nAuthentication\n- Bearer JWT is required. Set the Authorization header to `Bearer {{JWT}}`.\n\nHeaders\n- Content-Type: application/json\n- Authorization: Bearer {{JWT}}\n\nPath & Query Params\n- None.\n\nRequest Body (application/json)\n- title (string, required): Human-readable name for the stage.\n- folderId (string, required): Identifier of the destination folder.\n- fileIds (array[string], optional): One or more file IDs to associate with the stage.\n\nExample Body\n{\n  \"title\": \"Stage 3\",\n  \"folderId\": \"69179ab59b0f5b7006bdf6d2\",\n  \"fileIds\": [\"69186f0a07e4f790a10ff0d2\"]\n}\n\nSuccess Response\n- 201 Created: Returns the newly created stage object.\n  Example:\n  {\n    \"id\": \"<stageId>\",\n    \"title\": \"Stage 3\",\n    \"folderId\": \"69179ab59b0f5b7006bdf6d2\",\n    \"fileIds\": [\"69186f0a07e4f790a10ff0d2\"],\n    \"createdAt\": \"<timestamp>\",\n    \"updatedAt\": \"<timestamp>\"\n  }\n\nError Responses\n- 400 Bad Request: Missing or invalid fields.\n- 401 Unauthorized: Missing/invalid JWT.\n- 403 Forbidden: Insufficient permissions.\n- 404 Not Found: folderId or one of fileIds does not exist.\n- 409 Conflict: Duplicate title or conflicting resource.\n- 500 Internal Server Error.\n\nNotes\n- Ensure the Dev Environment has URL and JWT populated.\n- Use variables to avoid hardcoding host and tokens.\n- Save this request after updates for consistent behavior in collection runs."
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Stages",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/api/v1/ai/stages?folderId=6925e49d9df571d9f28d096e",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"ai",
+								"stages"
+							],
+							"query": [
+								{
+									"key": "folderId",
+									"value": "6925e49d9df571d9f28d096e"
+								}
+							]
+						},
+						"description": "Overview\nCreates a new AI Stage resource.\n\nEndpoint\nPOST {{URL}}/api/v1/ai/stages\n\nAuthentication\n- Bearer JWT is required. Set the Authorization header to `Bearer {{JWT}}`.\n\nHeaders\n- Content-Type: application/json\n- Authorization: Bearer {{JWT}}\n\nPath & Query Params\n- None.\n\nRequest Body (application/json)\n- title (string, required): Human-readable name for the stage.\n- folderId (string, required): Identifier of the destination folder.\n- fileIds (array[string], optional): One or more file IDs to associate with the stage.\n\nExample Body\n{\n  \"title\": \"Stage 3\",\n  \"folderId\": \"69179ab59b0f5b7006bdf6d2\",\n  \"fileIds\": [\"69186f0a07e4f790a10ff0d2\"]\n}\n\nSuccess Response\n- 201 Created: Returns the newly created stage object.\n  Example:\n  {\n    \"id\": \"<stageId>\",\n    \"title\": \"Stage 3\",\n    \"folderId\": \"69179ab59b0f5b7006bdf6d2\",\n    \"fileIds\": [\"69186f0a07e4f790a10ff0d2\"],\n    \"createdAt\": \"<timestamp>\",\n    \"updatedAt\": \"<timestamp>\"\n  }\n\nError Responses\n- 400 Bad Request: Missing or invalid fields.\n- 401 Unauthorized: Missing/invalid JWT.\n- 403 Forbidden: Insufficient permissions.\n- 404 Not Found: folderId or one of fileIds does not exist.\n- 409 Conflict: Duplicate title or conflicting resource.\n- 500 Internal Server Error.\n\nNotes\n- Ensure the Dev Environment has URL and JWT populated.\n- Use variables to avoid hardcoding host and tokens.\n- Save this request after updates for consistent behavior in collection runs."
+					},
+					"response": []
+				},
+				{
+					"name": "Get All MCQs",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"folderId\": \"6925e49d9df571d9f28d096e\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{localURL}}/api/v1/ai/mcq",
+							"host": [
+								"{{localURL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"ai",
+								"mcq"
+							]
+						},
+						"description": "Overview\nCreates a new AI Stage resource.\n\nEndpoint\nPOST {{URL}}/api/v1/ai/stages\n\nAuthentication\n- Bearer JWT is required. Set the Authorization header to `Bearer {{JWT}}`.\n\nHeaders\n- Content-Type: application/json\n- Authorization: Bearer {{JWT}}\n\nPath & Query Params\n- None.\n\nRequest Body (application/json)\n- title (string, required): Human-readable name for the stage.\n- folderId (string, required): Identifier of the destination folder.\n- fileIds (array[string], optional): One or more file IDs to associate with the stage.\n\nExample Body\n{\n  \"title\": \"Stage 3\",\n  \"folderId\": \"69179ab59b0f5b7006bdf6d2\",\n  \"fileIds\": [\"69186f0a07e4f790a10ff0d2\"]\n}\n\nSuccess Response\n- 201 Created: Returns the newly created stage object.\n  Example:\n  {\n    \"id\": \"<stageId>\",\n    \"title\": \"Stage 3\",\n    \"folderId\": \"69179ab59b0f5b7006bdf6d2\",\n    \"fileIds\": [\"69186f0a07e4f790a10ff0d2\"],\n    \"createdAt\": \"<timestamp>\",\n    \"updatedAt\": \"<timestamp>\"\n  }\n\nError Responses\n- 400 Bad Request: Missing or invalid fields.\n- 401 Unauthorized: Missing/invalid JWT.\n- 403 Forbidden: Insufficient permissions.\n- 404 Not Found: folderId or one of fileIds does not exist.\n- 409 Conflict: Duplicate title or conflicting resource.\n- 500 Internal Server Error.\n\nNotes\n- Ensure the Dev Environment has URL and JWT populated.\n- Use variables to avoid hardcoding host and tokens.\n- Save this request after updates for consistent behavior in collection runs."
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Flashcards",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"folderId\": \"6925e49d9df571d9f28d096e\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{localURL}}/api/v1/ai/flashcards",
+							"host": [
+								"{{localURL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"ai",
+								"flashcards"
+							]
+						},
+						"description": "Overview\nCreates a new AI Stage resource.\n\nEndpoint\nPOST {{URL}}/api/v1/ai/stages\n\nAuthentication\n- Bearer JWT is required. Set the Authorization header to `Bearer {{JWT}}`.\n\nHeaders\n- Content-Type: application/json\n- Authorization: Bearer {{JWT}}\n\nPath & Query Params\n- None.\n\nRequest Body (application/json)\n- title (string, required): Human-readable name for the stage.\n- folderId (string, required): Identifier of the destination folder.\n- fileIds (array[string], optional): One or more file IDs to associate with the stage.\n\nExample Body\n{\n  \"title\": \"Stage 3\",\n  \"folderId\": \"69179ab59b0f5b7006bdf6d2\",\n  \"fileIds\": [\"69186f0a07e4f790a10ff0d2\"]\n}\n\nSuccess Response\n- 201 Created: Returns the newly created stage object.\n  Example:\n  {\n    \"id\": \"<stageId>\",\n    \"title\": \"Stage 3\",\n    \"folderId\": \"69179ab59b0f5b7006bdf6d2\",\n    \"fileIds\": [\"69186f0a07e4f790a10ff0d2\"],\n    \"createdAt\": \"<timestamp>\",\n    \"updatedAt\": \"<timestamp>\"\n  }\n\nError Responses\n- 400 Bad Request: Missing or invalid fields.\n- 401 Unauthorized: Missing/invalid JWT.\n- 403 Forbidden: Insufficient permissions.\n- 404 Not Found: folderId or one of fileIds does not exist.\n- 409 Conflict: Duplicate title or conflicting resource.\n- 500 Internal Server Error.\n\nNotes\n- Ensure the Dev Environment has URL and JWT populated.\n- Use variables to avoid hardcoding host and tokens.\n- Save this request after updates for consistent behavior in collection runs."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Chat History",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"folderId\": \"6925e49d9df571d9f28d096e\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{localURL}}/api/v1/ai/chat",
+							"host": [
+								"{{localURL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"ai",
+								"chat"
+							]
+						},
+						"description": "Overview\nCreates a new AI Stage resource.\n\nEndpoint\nPOST {{URL}}/api/v1/ai/stages\n\nAuthentication\n- Bearer JWT is required. Set the Authorization header to `Bearer {{JWT}}`.\n\nHeaders\n- Content-Type: application/json\n- Authorization: Bearer {{JWT}}\n\nPath & Query Params\n- None.\n\nRequest Body (application/json)\n- title (string, required): Human-readable name for the stage.\n- folderId (string, required): Identifier of the destination folder.\n- fileIds (array[string], optional): One or more file IDs to associate with the stage.\n\nExample Body\n{\n  \"title\": \"Stage 3\",\n  \"folderId\": \"69179ab59b0f5b7006bdf6d2\",\n  \"fileIds\": [\"69186f0a07e4f790a10ff0d2\"]\n}\n\nSuccess Response\n- 201 Created: Returns the newly created stage object.\n  Example:\n  {\n    \"id\": \"<stageId>\",\n    \"title\": \"Stage 3\",\n    \"folderId\": \"69179ab59b0f5b7006bdf6d2\",\n    \"fileIds\": [\"69186f0a07e4f790a10ff0d2\"],\n    \"createdAt\": \"<timestamp>\",\n    \"updatedAt\": \"<timestamp>\"\n  }\n\nError Responses\n- 400 Bad Request: Missing or invalid fields.\n- 401 Unauthorized: Missing/invalid JWT.\n- 403 Forbidden: Insufficient permissions.\n- 404 Not Found: folderId or one of fileIds does not exist.\n- 409 Conflict: Duplicate title or conflicting resource.\n- 500 Internal Server Error.\n\nNotes\n- Ensure the Dev Environment has URL and JWT populated.\n- Use variables to avoid hardcoding host and tokens.\n- Save this request after updates for consistent behavior in collection runs."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Stage By Id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{localURL}}/api/v1/ai/stages/6929f7ab4151950f706f1425",
+							"host": [
+								"{{localURL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"ai",
+								"stages",
+								"6929f7ab4151950f706f1425"
+							]
+						},
+						"description": "Overview\nCreates a new AI Stage resource.\n\nEndpoint\nPOST {{URL}}/api/v1/ai/stages\n\nAuthentication\n- Bearer JWT is required. Set the Authorization header to `Bearer {{JWT}}`.\n\nHeaders\n- Content-Type: application/json\n- Authorization: Bearer {{JWT}}\n\nPath & Query Params\n- None.\n\nRequest Body (application/json)\n- title (string, required): Human-readable name for the stage.\n- folderId (string, required): Identifier of the destination folder.\n- fileIds (array[string], optional): One or more file IDs to associate with the stage.\n\nExample Body\n{\n  \"title\": \"Stage 3\",\n  \"folderId\": \"69179ab59b0f5b7006bdf6d2\",\n  \"fileIds\": [\"69186f0a07e4f790a10ff0d2\"]\n}\n\nSuccess Response\n- 201 Created: Returns the newly created stage object.\n  Example:\n  {\n    \"id\": \"<stageId>\",\n    \"title\": \"Stage 3\",\n    \"folderId\": \"69179ab59b0f5b7006bdf6d2\",\n    \"fileIds\": [\"69186f0a07e4f790a10ff0d2\"],\n    \"createdAt\": \"<timestamp>\",\n    \"updatedAt\": \"<timestamp>\"\n  }\n\nError Responses\n- 400 Bad Request: Missing or invalid fields.\n- 401 Unauthorized: Missing/invalid JWT.\n- 403 Forbidden: Insufficient permissions.\n- 404 Not Found: folderId or one of fileIds does not exist.\n- 409 Conflict: Duplicate title or conflicting resource.\n- 500 Internal Server Error.\n\nNotes\n- Ensure the Dev Environment has URL and JWT populated.\n- Use variables to avoid hardcoding host and tokens.\n- Save this request after updates for consistent behavior in collection runs."
+					},
+					"response": []
+				},
+				{
+					"name": "Get MCQ By Id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{localURL}}/api/v1/ai/mcq/6929f7ab4151950f706f1425",
+							"host": [
+								"{{localURL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"ai",
+								"mcq",
+								"6929f7ab4151950f706f1425"
+							]
+						},
+						"description": "Overview\nCreates a new AI Stage resource.\n\nEndpoint\nPOST {{URL}}/api/v1/ai/stages\n\nAuthentication\n- Bearer JWT is required. Set the Authorization header to `Bearer {{JWT}}`.\n\nHeaders\n- Content-Type: application/json\n- Authorization: Bearer {{JWT}}\n\nPath & Query Params\n- None.\n\nRequest Body (application/json)\n- title (string, required): Human-readable name for the stage.\n- folderId (string, required): Identifier of the destination folder.\n- fileIds (array[string], optional): One or more file IDs to associate with the stage.\n\nExample Body\n{\n  \"title\": \"Stage 3\",\n  \"folderId\": \"69179ab59b0f5b7006bdf6d2\",\n  \"fileIds\": [\"69186f0a07e4f790a10ff0d2\"]\n}\n\nSuccess Response\n- 201 Created: Returns the newly created stage object.\n  Example:\n  {\n    \"id\": \"<stageId>\",\n    \"title\": \"Stage 3\",\n    \"folderId\": \"69179ab59b0f5b7006bdf6d2\",\n    \"fileIds\": [\"69186f0a07e4f790a10ff0d2\"],\n    \"createdAt\": \"<timestamp>\",\n    \"updatedAt\": \"<timestamp>\"\n  }\n\nError Responses\n- 400 Bad Request: Missing or invalid fields.\n- 401 Unauthorized: Missing/invalid JWT.\n- 403 Forbidden: Insufficient permissions.\n- 404 Not Found: folderId or one of fileIds does not exist.\n- 409 Conflict: Duplicate title or conflicting resource.\n- 500 Internal Server Error.\n\nNotes\n- Ensure the Dev Environment has URL and JWT populated.\n- Use variables to avoid hardcoding host and tokens.\n- Save this request after updates for consistent behavior in collection runs."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Flashcards By Id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{localURL}}/api/v1/ai/flashcards/6929fabf4151950f706f14b0",
+							"host": [
+								"{{localURL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"ai",
+								"flashcards",
+								"6929fabf4151950f706f14b0"
+							]
+						},
+						"description": "Overview\nCreates a new AI Stage resource.\n\nEndpoint\nPOST {{URL}}/api/v1/ai/stages\n\nAuthentication\n- Bearer JWT is required. Set the Authorization header to `Bearer {{JWT}}`.\n\nHeaders\n- Content-Type: application/json\n- Authorization: Bearer {{JWT}}\n\nPath & Query Params\n- None.\n\nRequest Body (application/json)\n- title (string, required): Human-readable name for the stage.\n- folderId (string, required): Identifier of the destination folder.\n- fileIds (array[string], optional): One or more file IDs to associate with the stage.\n\nExample Body\n{\n  \"title\": \"Stage 3\",\n  \"folderId\": \"69179ab59b0f5b7006bdf6d2\",\n  \"fileIds\": [\"69186f0a07e4f790a10ff0d2\"]\n}\n\nSuccess Response\n- 201 Created: Returns the newly created stage object.\n  Example:\n  {\n    \"id\": \"<stageId>\",\n    \"title\": \"Stage 3\",\n    \"folderId\": \"69179ab59b0f5b7006bdf6d2\",\n    \"fileIds\": [\"69186f0a07e4f790a10ff0d2\"],\n    \"createdAt\": \"<timestamp>\",\n    \"updatedAt\": \"<timestamp>\"\n  }\n\nError Responses\n- 400 Bad Request: Missing or invalid fields.\n- 401 Unauthorized: Missing/invalid JWT.\n- 403 Forbidden: Insufficient permissions.\n- 404 Not Found: folderId or one of fileIds does not exist.\n- 409 Conflict: Duplicate title or conflicting resource.\n- 500 Internal Server Error.\n\nNotes\n- Ensure the Dev Environment has URL and JWT populated.\n- Use variables to avoid hardcoding host and tokens.\n- Save this request after updates for consistent behavior in collection runs."
+					},
+					"response": []
+				},
+				{
+					"name": "Generate MCQ",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"MCQ 9\",\r\n    \"folderId\": \"6925e49d9df571d9f28d096e\",\r\n    \"fileIds\": [\r\n        \"6928863e97d5bb3bfa8c2e6a\"\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{localURL}}/api/v1/ai/mcq",
+							"host": [
+								"{{localURL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"ai",
+								"mcq"
+							]
+						},
+						"description": "Title: Generate MCQ\n\nSummary\nCreate/generate a Multiple-Choice Question (MCQ) resource using AI for the specified folder and source files.\n\nEndpoint\nPOST {{URL}}/api/v1/ai/mcq\n\nAuthentication\n- Type: Bearer JWT\n- Header: Authorization: Bearer {{JWT}}\n\nHeaders\n- Content-Type: application/json\n- Authorization: Bearer {{JWT}}\n\nRequest Body\nContent-Type: application/json\nSchema:\n{\n  title: string,            // Human-readable MCQ title\n  folderId: string,         // Target folder identifier where MCQ will be created\n  fileIds: string[]         // IDs of source files used to generate MCQ\n}\nExample:\n{\n  \"title\": \"MCQ 1\",\n  \"folderId\": \"69179ab59b0f5b7006bdf6d2\",\n  \"fileIds\": [\"69179ad79b0f5b7006bdf6d7\"]\n}\n\nSuccess Response\n- Status: 201 Created\n- Body (example):\n{\n  \"id\": \"<mcqId>\",\n  \"title\": \"MCQ 1\",\n  \"folderId\": \"69179ab59b0f5b7006bdf6d2\",\n  \"questions\": [\n    {\n      \"id\": \"<questionId>\",\n      \"prompt\": \"...\",\n      \"choices\": [\"A\", \"B\", \"C\", \"D\"],\n      \"answer\": \"B\"\n    }\n  ],\n  \"createdAt\": \"<iso8601>\"\n}\n\nError Responses\n- 400 Bad Request: Missing required fields or invalid fileIds/folderId.\n- 401 Unauthorized: Missing/invalid JWT. Ensure Authorization header is set.\n- 403 Forbidden: Insufficient permissions to write to the folder.\n- 422 Unprocessable Entity: AI generation failed due to content constraints.\n- 500 Internal Server Error: Unexpected server error.\n\nNotes\n- Ensure {{URL}} and {{JWT}} are set in the active environment (Dev Environment).\n- fileIds must reference files accessible to the authenticated user.\n- Idempotency: Re-sending may create multiple MCQs; use your backend's idempotency strategy if available.\n- Rate limiting may apply based on server configuration.\n"
+					},
+					"response": []
+				},
+				{
+					"name": "Generate Flashcards",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"Flashcards 7\",\r\n    \"folderId\": \"6925e49d9df571d9f28d096e\",\r\n    \"fileIds\": [\r\n        \"6928863e97d5bb3bfa8c2e6a\"\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/api/v1/ai/flashcards",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"ai",
+								"flashcards"
+							]
+						},
+						"description": "Purpose\nCreate a new set of AI-generated flashcards based on uploaded files and metadata.\n\nEndpoint\nPOST {{URL}}/api/v1/ai/flashcards\n\nAuth\nBearer JWT required via the Authorization header. Use the environment variable {{JWT}}.\n\nHeaders\n- Content-Type: application/json\n- Authorization: Bearer {{JWT}}\n\nRequest Body (JSON)\n{\n  \"title\": \"string\" (required) – Human-readable title for the flashcard set.\n  \"folderId\": \"string\" (required) – Identifier of the destination folder where the flashcard set will be stored.\n  \"fileIds\": [\"string\"] (required) – Array of previously uploaded file IDs to be used as source material. Must contain at least one ID.\n}\n\nExample Body\n{\n  \"title\": \"Flashcards 2\",\n  \"folderId\": \"69179ab59b0f5b7006bdf6d2\",\n  \"fileIds\": [\"69186f0a07e4f790a10ff0d2\"]\n}\n\nSuccessful Response\n- 201 Created – Returns metadata for the created flashcard set and generation job status.\n\nExample 201 Response\n{\n  \"id\": \"fc_12345\",\n  \"title\": \"Flashcards 2\",\n  \"folderId\": \"69179ab59b0f5b7006bdf6d2\",\n  \"status\": \"processing\",\n  \"createdAt\": \"2025-01-15T10:25:43.112Z\"\n}\n\nError Responses\n- 400 Bad Request – Missing or invalid fields (e.g., empty fileIds).\n- 401 Unauthorized – Missing/invalid JWT token. Ensure Authorization header uses Bearer {{JWT}}.\n- 403 Forbidden – Authenticated but lacking permission to access folderId.\n- 404 Not Found – One or more fileIds or folderId do not exist.\n- 409 Conflict – A flashcard generation with the same title already exists in the folder.\n- 422 Unprocessable Entity – Files could not be parsed for flashcard generation.\n- 500 Internal Server Error – Unexpected server error.\n\nTesting Notes\n- Ensure {{URL}} and {{JWT}} are set in the active environment (Dev Environment).\n- fileIds must reference files uploaded via the file upload endpoint.\n- The generation process may be asynchronous; poll the flashcard status endpoint if provided.\n\nChangelog\n- 2025-11-19: Added comprehensive request documentation."
+					},
+					"response": []
+				},
+				{
+					"name": "Ask AI",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"folderId\": \"6925e49d9df571d9f28d096e\",\r\n    \"userPrompt\": \"ما هي خصائص الكثافة السكانية في مركز الحسنه?\",\r\n    \"fileIds\": [\r\n        \"6928863e97d5bb3bfa8c2e6a\"\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/api/v1/ai/chat",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"ai",
+								"chat"
+							]
+						},
+						"description": "Title: AI Chat - Create Chat Response\n\nOverview:\nThis endpoint creates an AI chat response for a given user prompt within a knowledge folder. It can optionally reference uploaded files to ground responses.\n\nMethod and URL:\nPOST {{URL}}/api/v1/ai/chat\n\nAuthentication:\n- Bearer JWT required. Set environment variable {{JWT}} and add an Authorization header: `Bearer {{JWT}}`.\n\nRequest Body (JSON):\n- folderId (string, required): The target knowledge folder ID. Example: \"691a1ab69249d1274f542cea\"\n- userPrompt (string, required): The user question or instruction. Examples: \"What is oop\", \"ما هو مفهوم ال oop\"\n- fileIds (array[string], optional): IDs of uploaded files to use as context. Default: []\n\nExample Request Body:\n{\n  \"folderId\": \"691a1ab69249d1274f542cea\",\n  \"userPrompt\": \"What is oop\",\n  \"fileIds\": []\n}\n\nSuccessful Response:\n- 200 OK with the generated AI message and any metadata.\n\nCommon Errors:\n- 400 Bad Request: Missing required fields or invalid JSON.\n- 401 Unauthorized: Missing/invalid JWT.\n- 404 Not Found: Invalid folderId or fileIds.\n- 429 Too Many Requests: Rate limit exceeded.\n- 5xx Server Error: Unexpected server issue.\n\nNotes:\n- Ensure {{URL}} and {{JWT}} are set in the active environment (Dev Environment).\n- Use examples to document typical prompts and multilingual inputs.\n- This request currently has no pre-request or test scripts; consider adding tests to validate status code and schema later."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Inner Stage Score By Stages Id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"stageNumber\": 4,\r\n    \"score\": 30\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{localURL}}/api/v1/ai/stages/6922ddcc340aed1a0e20ca62",
+							"host": [
+								"{{localURL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"ai",
+								"stages",
+								"6922ddcc340aed1a0e20ca62"
+							]
+						},
+						"description": "Purpose: Update score for a specific inner stage by its stageId.\n\nEndpoint\n\n- Method: PATCH\n    \n- URL: {{URL}}/api/v1/ai/stages/:stageId\n    \n- Path Variables:\n    - :stageId (string | required) — The identifier of the stage to update.\n        \n\nAuthentication\n\n- Type: Bearer token\n    \n- Header: Authorization: Bearer {{JWT}}\n    \n\nHeaders\n\n- Content-Type: application/json\n    \n- Accept: application/json\n    \n\nRequest Body\n\n- Content-Type: raw (application/json)\n    \n- Schema:  \n    {  \n    \"stageNumber\": number (required) — The inner stage number to target,  \n    \"score\": number (required) — The score value to set for the inner stage.  \n    }\n    \n- Example:  \n    {  \n    \"stageNumber\": 1,  \n    \"score\": 50  \n    }\n    \n\nResponses\n\n- 200 OK — Score updated successfully. Example:  \n    {  \n    \"success\": true,  \n    \"message\": \"Stage score updated\",  \n    \"data\": {\n    \n    ```\n    \"stageId\": \"<id>\",\n    \"stageNumber\": 1,\n    \"score\": 50\n    \n     ```\n    \n    }  \n    }\n- 400 Bad Request — Validation failed (e.g., missing fields, invalid types).\n    \n- 401 Unauthorized — Missing/invalid JWT.\n    \n- 404 Not Found — stageId does not exist.\n    \n- 500 Internal Server Error — Unexpected server error.\n    \n\nUsage Notes\n\n- Ensure {{URL}} and {{JWT}} are set in the active environment (Dev Environment).\n    \n- Replace :stageId path variable with a valid identifier before sending.\n    \n- Only the description is modified; the request configuration remains unchanged."
+					},
+					"response": []
+				},
+				{
+					"name": "Update MCQs Score By MCQ Id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"score\": 190\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/api/v1/ai/mcq/6922f046013301559313e712",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"ai",
+								"mcq",
+								"6922f046013301559313e712"
+							]
+						},
+						"description": "Purpose: Update score for a specific inner stage by its stageId.\n\nEndpoint\n\n- Method: PATCH\n    \n- URL: {{URL}}/api/v1/ai/stages/:stageId\n    \n- Path Variables:\n    - :stageId (string | required) — The identifier of the stage to update.\n        \n\nAuthentication\n\n- Type: Bearer token\n    \n- Header: Authorization: Bearer {{JWT}}\n    \n\nHeaders\n\n- Content-Type: application/json\n    \n- Accept: application/json\n    \n\nRequest Body\n\n- Content-Type: raw (application/json)\n    \n- Schema:  \n    {  \n    \"stageNumber\": number (required) — The inner stage number to target,  \n    \"score\": number (required) — The score value to set for the inner stage.  \n    }\n    \n- Example:  \n    {  \n    \"stageNumber\": 1,  \n    \"score\": 50  \n    }\n    \n\nResponses\n\n- 200 OK — Score updated successfully. Example:  \n    {  \n    \"success\": true,  \n    \"message\": \"Stage score updated\",  \n    \"data\": {\n    \n    ```\n    \"stageId\": \"<id>\",\n    \"stageNumber\": 1,\n    \"score\": 50\n    \n     ```\n    \n    }  \n    }\n- 400 Bad Request — Validation failed (e.g., missing fields, invalid types).\n    \n- 401 Unauthorized — Missing/invalid JWT.\n    \n- 404 Not Found — stageId does not exist.\n    \n- 500 Internal Server Error — Unexpected server error.\n    \n\nUsage Notes\n\n- Ensure {{URL}} and {{JWT}} are set in the active environment (Dev Environment).\n    \n- Replace :stageId path variable with a valid identifier before sending.\n    \n- Only the description is modified; the request configuration remains unchanged."
+					},
+					"response": []
+				},
+				{
+					"name": "Update flashcard isAnswered By flashcard question",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"question\": \"What is Django REST Framework (DRF)?\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{localURL}}/api/v1/ai/flashcards/6929f23f4151950f706f13a3",
+							"host": [
+								"{{localURL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"ai",
+								"flashcards",
+								"6929f23f4151950f706f13a3"
+							]
+						},
+						"description": "Purpose: Update score for a specific inner stage by its stageId.\n\nEndpoint\n\n- Method: PATCH\n    \n- URL: {{URL}}/api/v1/ai/stages/:stageId\n    \n- Path Variables:\n    - :stageId (string | required) — The identifier of the stage to update.\n        \n\nAuthentication\n\n- Type: Bearer token\n    \n- Header: Authorization: Bearer {{JWT}}\n    \n\nHeaders\n\n- Content-Type: application/json\n    \n- Accept: application/json\n    \n\nRequest Body\n\n- Content-Type: raw (application/json)\n    \n- Schema:  \n    {  \n    \"stageNumber\": number (required) — The inner stage number to target,  \n    \"score\": number (required) — The score value to set for the inner stage.  \n    }\n    \n- Example:  \n    {  \n    \"stageNumber\": 1,  \n    \"score\": 50  \n    }\n    \n\nResponses\n\n- 200 OK — Score updated successfully. Example:  \n    {  \n    \"success\": true,  \n    \"message\": \"Stage score updated\",  \n    \"data\": {\n    \n    ```\n    \"stageId\": \"<id>\",\n    \"stageNumber\": 1,\n    \"score\": 50\n    \n     ```\n    \n    }  \n    }\n- 400 Bad Request — Validation failed (e.g., missing fields, invalid types).\n    \n- 401 Unauthorized — Missing/invalid JWT.\n    \n- 404 Not Found — stageId does not exist.\n    \n- 500 Internal Server Error — Unexpected server error.\n    \n\nUsage Notes\n\n- Ensure {{URL}} and {{JWT}} are set in the active environment (Dev Environment).\n    \n- Replace :stageId path variable with a valid identifier before sending.\n    \n- Only the description is modified; the request configuration remains unchanged."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Payments",
+			"item": [
+				{
+					"name": "Pro Plan Subscription",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/api/v1/payments/pro-plan",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"payments",
+								"pro-plan"
+							]
+						},
+						"description": "Purpose: Creates a Stripe Checkout session for the Pro Plan subscription.\n\nMethod & URL: POST {{URL}}/api/v1/payments/pro-plan\n\nAuthentication:\n- Bearer JWT required in the Authorization header.\n- Variable: {{JWT}} should contain a valid token for an authenticated user.\n\nHeaders:\n- Authorization: Bearer {{JWT}}\n- Content-Type: application/json (no request body is required).\n\nPath/Query Params: None.\n\nRequest Body: None.\n\nEnvironment Variables:\n- {{URL}}: Base API URL for the environment (e.g., https://api.dev.example.com).\n- {{JWT}}: JSON Web Token of the logged-in user.\n\nBehavior:\n- Initiates a subscription checkout session with Stripe for the Pro Plan.\n- Returns a session identifier and a URL to redirect the user to Stripe Checkout.\n\nSuccess Response (200):\n{\n  \"status\": \"success\",\n  \"message\": \"Checkout session created successfully\",\n  \"session_id\": \"cs_test_...\",\n  \"session_url\": \"https://checkout.stripe.com/c/pay/cs_test_...\"\n}\n\nNotes:\n- Use the \"session_url\" to redirect the user to Stripe Checkout.\n- The \"session_id\" can be used server-side with Stripe APIs if needed.\n- Ensure the JWT has sufficient permissions to create a subscription.\n\nTesting Tips:\n- Verify status code is 200.\n- Assert that response has keys: status, message, session_id, session_url.\n- Optionally, follow the session_url in a browser to confirm it opens Stripe Checkout (for test mode)."
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
