@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/accordion";
 const QaSection = () => {
   return (
-    <div className="w-full mt-24">
+    <div id="qa" className="w-full mt-24 scroll-mt-24">
       <div className="flex flex-col items-center justify-center gap-6 mb-12">
         <h3 className="text-4xl md:text-5xl font-bold text-white text-center">
           الأسئلة الشائعة

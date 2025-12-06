@@ -14,7 +14,7 @@ import tool3 from "@/assets/landing_page/tool3.png";
 const ToolsSection = () => {
   return (
     <>
-      <div className="w-full mt-16">
+      <div id="tools" className="w-full mt-16 scroll-mt-24">
         <div className="flex flex-col items-center justify-center gap-4 mb-12">
           <h3 className="text-4xl font-medium text-white">الأدوات</h3>
           <p className="text-lg text-white/80">
